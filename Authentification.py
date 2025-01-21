@@ -1,0 +1,1 @@
+__author__ = "5158850, Novgorodtseva, 8392145, Reich"
