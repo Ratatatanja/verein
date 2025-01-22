@@ -39,7 +39,32 @@ def verify_login(username, password):
     cursor.execute("SELECT role FROM users WHERE username = ? AND password = ?", (username, password))
     result = cursor.fetchone()
     conn.close()
-    return result
+    if result:
+    if result:
+        return result[0]  # Return the role directly
+    return None
+
+# updating the user role
+def update_user_role(username, new_role):
+    conn = sqlite3.connect("app_data.db")
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET role = ? WHERE username = ?", (new_role, username))
+    conn.commit()
+    conn.close()
+    print(f"Updated role for user '{username}' to '{new_role}'")
+
+
+
+# updating the user role
+def update_user_role(username, new_role):
+    conn = sqlite3.connect("app_data.db")
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET role = ? WHERE username = ?", (new_role, username))
+    conn.commit()
+    conn.close()
+    print(f"Updated role for user '{username}' to '{new_role}'")
+
+
 
 # Add New User
 def add_new_user(username, password, role):
@@ -53,11 +78,23 @@ def add_new_user(username, password, role):
     except sqlite3.IntegrityError:
         return False
 
+# centers the windows
+def center_window(window, width, height):
+    window_width = width
+    window_height = height
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = int((screen_width / 2) - (window_width / 2))
+    y = int((screen_height / 2) - (window_height / 2))
+    window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+
 # Main App Window
 def open_main_window(role):
+    print(f"User role detected: {role}")  # Debugging
     main_window = tk.Tk()
     main_window.title("Tabbed Interface App")
-    main_window.geometry("600x400")
+    center_window(main_window, 1050, 800) #using center_window for main window
 
     # Create Tab Control
     tab_control = ttk.Notebook(main_window)
@@ -72,12 +109,24 @@ def open_main_window(role):
         accessible_tabs = 2
     else:
         accessible_tabs = 0
+    
 
     for i in range(1, accessible_tabs + 1):
         tab = ttk.Frame(tab_control)
         tab_control.add(tab, text=f"Tab {i}")
         ttk.Label(tab, text=f"This is Tab {i}", font=("Arial", 14)).pack(pady=20)
         tabs.append(tab)
+    
+    """ # Only Admin role enabled
+    if role == "Admin":
+        accessible_tabs = 5
+        tabs = []
+        for i in range(1, accessible_tabs + 1):
+            tab = ttk.Frame(tab_control)
+            tab_control.add(tab, text=f"Tab {i}")
+            ttk.Label(tab, text=f"This is Tab {i}", font=("Arial", 14)).pack(pady=20)
+            tabs.append(tab)"""
+
 
     # Add Admin Panel in Tab 5 for Admin Role
     if role == "Admin" and len(tabs) == 5:
@@ -103,7 +152,7 @@ def open_main_window(role):
         username_entry.pack(pady=5)
 
         ttk.Label(tabs[4], text="New Password:").pack(pady=5)
-        password_entry = ttk.Entry(tabs[4], show="*")
+        password_entry = ttk.Entry(tabs[4],) #show'*' entfernt
         password_entry.pack(pady=5)
 
         ttk.Label(tabs[4], text="Role:").pack(pady=5)
@@ -116,23 +165,38 @@ def open_main_window(role):
     tab_control.pack(expand=1, fill="both")
     main_window.mainloop()
 
+# for debugging/test
+def debug_database():
+    conn = sqlite3.connect("app_data.db")
+    cursor = conn.cursor()
+
+    print("Fetching all users from the database:")
+    cursor.execute("SELECT * FROM users")
+    users = cursor.fetchall()
+    for user in users:
+        print(user)  # Zeigt alle Benutzerdaten an
+
+    conn.close()
+
+
 # Login Window
 def open_login_window():
     def handle_login():
         username = username_entry.get()
         password = password_entry.get()
 
-        user_data = verify_login(username, password)
-        if user_data:
+        user_role = verify_login(username, password)
+        if user_role:
             messagebox.showinfo("Login Success", "Welcome!")
             login_window.destroy()
-            open_main_window(user_data[0])  # Pass the role to the main window
+            open_main_window(user_role)  # Pass the role to the main window
         else:
             messagebox.showerror("Login Failed", "Invalid username or password")
 
+
     login_window = tk.Tk()
     login_window.title("Login")
-    login_window.geometry("300x200")
+    center_window(login_window, 300, 200) #using center_window for main window
 
     ttk.Label(login_window, text="Username:").pack(pady=5)
     username_entry = ttk.Entry(login_window)
@@ -151,3 +215,4 @@ def open_login_window():
 if __name__ == "__main__":
     setup_database()
     open_login_window()
+    #update_user_role("admin", "Admin")  # Aktualisiere die Rolle für den Admin
