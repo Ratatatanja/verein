@@ -66,12 +66,23 @@ def add_new_user(username, password, role):
     except sqlite3.IntegrityError:
         return False
 
+# centers the windows
+def center_window(window, width, height):
+    window_width = width
+    window_height = height
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+    x = int((screen_width / 2) - (window_width / 2))
+    y = int((screen_height / 2) - (window_height / 2))
+    window.geometry(f"{window_width}x{window_height}+{x}+{y}")
+
+
 # Main App Window
 def open_main_window(role):
     print(f"User role detected: {role}")  # Debugging
     main_window = tk.Tk()
     main_window.title("Tabbed Interface App")
-    main_window.geometry("1050x800")
+    center_window(main_window, 1050, 800) #using center_window for main window
 
     # Create Tab Control
     tab_control = ttk.Notebook(main_window)
@@ -173,7 +184,7 @@ def open_login_window():
 
     login_window = tk.Tk()
     login_window.title("Login")
-    login_window.geometry("300x200")
+    center_window(login_window, 300, 200) #using center_window for main window
 
     ttk.Label(login_window, text="Username:").pack(pady=5)
     username_entry = ttk.Entry(login_window)
@@ -192,4 +203,4 @@ def open_login_window():
 if __name__ == "__main__":
     setup_database()
     open_login_window()
-    update_user_role("admin", "Admin")  # Aktualisiere die Rolle für den Admin
+    #update_user_role("admin", "Admin")  # Aktualisiere die Rolle für den Admin
