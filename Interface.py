@@ -40,7 +40,6 @@ def verify_login(username, password):
     result = cursor.fetchone()
     conn.close()
     if result:
-    if result:
         return result[0]  # Return the role directly
     return None
 
