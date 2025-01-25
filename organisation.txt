@@ -1,0 +1,59 @@
+1. Wir müssen besser strukturieren. 
+1.1.1 login muss an Anfang der Datei
+1.1.2 Tabs müssen strukturiert sein
+1.1.3 zuerst der letzte Tab, dann alle anderen # auch andere Reihenfolge möglich, natürlich
+1.1.4. WICHTIG: alle definierte Funktionen müssen AUSSERHALB anderer Funktionen definiert werden
+1.2.1 Das Interface muss in class sein. (habe ich jetzt reingemacht)
+1.2.2 Alle Funktionen, bei denen es auch nur möglich ist, sollten in eigener Datei sein
+	  und auch in eigener Klasse sein.
+	  Gilt insbesondere für Datenbankmanagement: User Creation und Department Creation.
+	  Das muss auf jeden Fall in eigene Datei(en) rein.
+	  Sogar Erstellung der DB selber sollte in einer anderen Klasse sein, nicht im Interface
+	  Sonst wird die Interface Datei viel zu groß und intransparent.
+1.2.2.1 Datei: Users # hier sollte Login und User Management sein
+		update_user_role():
+		verify_login(username, password)
+
+
+Aufteilen
+#Jegor
+Variable: user +
+passwort: password +
+1. create_user +
+1. Interface +
+
+Tanja
+2. create_division 
+4. money stuff
+5. speichern
+
+Mittwoch
+Jegor
+- Interface Fenster + 
+- Interface für jeden User + 
+
+Tanja
+
+5. speichern
+
+#Sonntag
+Jegor
+2. create_division
+3. (withdraw_money, deposit_money)
+   (transfer_money)
+Tanja
+- (speichern)
+- alle Diagrame hochladen
+
+# Mittwoch
+Tanja
+- speichern
+- withdraw_money, deposit_money, transfer_money
+Jegor
+
+
+done:
+Jegor
+1. Interface
+2. Password (Login)
+3. create_user
