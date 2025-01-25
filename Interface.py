@@ -12,6 +12,7 @@ import sqlite3
 
 # Setup SQLite Database
 def setup_database():
+    # connecting with the file
     conn = sqlite3.connect("app_data.db")
     cursor = conn.cursor()
     cursor.execute("""
