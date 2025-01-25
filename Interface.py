@@ -33,6 +33,8 @@ def setup_database():
     conn.commit()
     conn.close()
 
+
+                   
 # Verify Login Credentials
 def verify_login(username, password):
     conn = sqlite3.connect("app_data.db")
@@ -78,6 +80,23 @@ def add_new_user(username, password, role):
     except sqlite3.IntegrityError:
         return False
 
+# Add New Department
+def add_department(name, initial_balance):
+    try:
+        conn = sqlite3.connect("app_data.db")
+        cursor = conn.cursor()
+        cursor.execute("""CREATE TABLE IF NOT EXISTS departments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            balance REAL NOT NULL
+        )""")
+        cursor.execute("INSERT INTO departments (name, balance) VALUES (?, ?)", (name, initial_balance))
+        conn.commit()
+        conn.close()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+
 # centers the windows
 def center_window(window, width, height):
     window_width = width
@@ -102,7 +121,7 @@ def open_main_window(role):
     # Create Tabs Based on Role
     tabs = []
     if role == "Admin":
-        accessible_tabs = 5
+        accessible_tabs = 6
     elif role == "Kassenwart":
         accessible_tabs = 3
     elif role == "Finanz-Viewer":
@@ -110,12 +129,37 @@ def open_main_window(role):
     else:
         accessible_tabs = 0
     
+    if role == "Admin":
+        accessible_tabs = [
+            "Dashboard", 
+            "Mitglieder", 
+            "Finanzen", 
+            "Berichte",
+            "Abteilungen hinzufügen", 
+            "Admin-Einstellungen"
+        ]
+    elif role == "Kassenwart":
+        accessible_tabs = ["Dashboard", "Mitglieder", "Finanzen"]
+    elif role == "Finanz-Viewer":
+        accessible_tabs = ["Dashboard", "Berichte"]
+    else:
+        accessible_tabs = []
 
-    for i in range(1, accessible_tabs + 1):
+
+    tabs = []
+    for tab_name in accessible_tabs:
+        tab = ttk.Frame(tab_control)
+        tab_control.add(tab, text=tab_name)
+        ttk.Label(tab, text=f"Dies ist der Bereich: {tab_name}", font=("Arial", 14)).pack(pady=20)
+        tabs.append(tab)
+
+    
+
+    """for i in range(1, accessible_tabs + 1):
         tab = ttk.Frame(tab_control)
         tab_control.add(tab, text=f"Tab {i}")
         ttk.Label(tab, text=f"This is Tab {i}", font=("Arial", 14)).pack(pady=20)
-        tabs.append(tab)
+        tabs.append(tab)"""
     
     """ # Only Admin role enabled
     if role == "Admin":
@@ -128,8 +172,9 @@ def open_main_window(role):
             tabs.append(tab)"""
 
 
-    # Add Admin Panel in Tab 5 for Admin Role
-    if role == "Admin" and len(tabs) == 5:
+    # Add Admin Panel in Tab 6 for Admin Role
+    if role == "Admin" and len(tabs) == 6:
+        #Tab muss umbenannt werden!!!
         def handle_add_user():
             new_username = username_entry.get()
             new_password = password_entry.get()
@@ -146,21 +191,50 @@ def open_main_window(role):
             else:
                 messagebox.showerror("Error", "All fields are required.")
 
-        ttk.Label(tabs[4], text="Add New User", font=("Arial", 14)).pack(pady=10)
-        ttk.Label(tabs[4], text="New Username:").pack(pady=5)
-        username_entry = ttk.Entry(tabs[4])
+        ttk.Label(tabs[5], text="Add New User", font=("Arial", 14)).pack(pady=10)
+        ttk.Label(tabs[5], text="New Username:").pack(pady=5)
+        username_entry = ttk.Entry(tabs[5])
         username_entry.pack(pady=5)
 
-        ttk.Label(tabs[4], text="New Password:").pack(pady=5)
-        password_entry = ttk.Entry(tabs[4],) #show'*' entfernt
+        ttk.Label(tabs[5], text="New Password:").pack(pady=5)
+        password_entry = ttk.Entry(tabs[5],) #show'*' entfernt
         password_entry.pack(pady=5)
 
-        ttk.Label(tabs[4], text="Role:").pack(pady=5)
-        role_combobox = ttk.Combobox(tabs[4], values=["Admin", "Kassenwart", "Finanz-Viewer"])
+        ttk.Label(tabs[5], text="Role:").pack(pady=5)
+        role_combobox = ttk.Combobox(tabs[5], values=["Admin", "Kassenwart", "Finanz-Viewer"])
         role_combobox.pack(pady=5)
 
-        add_user_button = ttk.Button(tabs[4], text="Add User", command=handle_add_user)
+        add_user_button = ttk.Button(tabs[5], text="Add User", command=handle_add_user)
         add_user_button.pack(pady=10)
+
+        def handle_add_department():
+            dept_name = dept_name_entry.get()
+            initial_balance = dept_balance_entry.get()
+            
+            if dept_name and initial_balance:
+                try:
+                    initial_balance = float(initial_balance)
+                    success = add_department(dept_name, initial_balance)
+                    if success:
+                        messagebox.showinfo("Erfolg", f"Abteilung '{dept_name}' wurde hinzugefügt.")
+                    else:
+                        messagebox.showerror("Fehler", f"Abteilung '{dept_name}' existiert bereits.")
+                except ValueError:
+                    messagebox.showerror("Fehler", "Der Kontostand muss eine Zahl sein.")
+            else:
+                messagebox.showerror("Fehler", "Alle Felder müssen ausgefüllt werden.")
+
+        ttk.Label(tabs[4], text="Abteilung hinzufügen", font=("Arial", 14)).pack(pady=10)
+        ttk.Label(tabs[4], text="Abteilungsname:").pack(pady=5)
+        dept_name_entry = ttk.Entry(tabs[4])
+        dept_name_entry.pack(pady=5)
+
+        ttk.Label(tabs[4], text="Startsaldo:").pack(pady=5)
+        dept_balance_entry = ttk.Entry(tabs[4])
+        dept_balance_entry.pack(pady=5)
+
+        add_dept_button = ttk.Button(tabs[4], text="Abteilung hinzufügen", command=handle_add_department)
+        add_dept_button.pack(pady=10)
 
     tab_control.pack(expand=1, fill="both")
     main_window.mainloop()
@@ -215,4 +289,5 @@ def open_login_window():
 if __name__ == "__main__":
     setup_database()
     open_login_window()
-    #update_user_role("admin", "Admin")  # Aktualisiere die Rolle für den Admin
+    update_user_role("admin", "Admin")  # Aktualisiere die Rolle für den Admin
+    
