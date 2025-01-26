@@ -6,13 +6,10 @@
 1.2.1 Das Interface muss in class sein. (habe ich jetzt reingemacht)
 1.2.2 Alle Funktionen, bei denen es auch nur möglich ist, sollten in eigener Datei sein
 	  und auch in eigener Klasse sein.
-	  Gilt insbesondere für Datenbankmanagement: User Creation und Department Creation.
+	  Gilt insbesondere für Datenbankmanagement: DB Management (setup_database()) und User Creation. Department (separat).
 	  Das muss auf jeden Fall in eigene Datei(en) rein.
 	  Sogar Erstellung der DB selber sollte in einer anderen Klasse sein, nicht im Interface
 	  Sonst wird die Interface Datei viel zu groß und intransparent.
-1.2.2.1 Datei: Users # hier sollte Login und User Management sein
-		update_user_role():
-		verify_login(username, password)
 
 
 Aufteilen
@@ -38,19 +35,36 @@ Tanja
 
 #Sonntag
 Jegor
-2. create_division
+2. create_division +
 3. (withdraw_money, deposit_money)
    (transfer_money)
 Tanja
 - (speichern)
-- alle Diagrame hochladen
+- alle Diagrame hochladen +
 
 # Mittwoch
 Tanja
-- speichern
-- withdraw_money, deposit_money, transfer_money
-Jegor
+- Finanztabs machen (anzeigen)
+- withdraw_money, 
+- Transferhistorie
+- deposit_money
+- (transfer_money) 
 
+Jegor
+1. Funktionen rausziehen aus anderen Funktionen
+2. Neue Dateien und Klassen erstellen
+3. UI Datei anpassen mit neuen Klassen
+4. pushen und Tanja sagen
+- Dokumentation
+
+# Finanzübersicht Tab
+- Adminbutton bei Finanzübersicht
+- speichern als csv (Userdatei speichern als Beispiel)
+- Button für speichern 
+- anzeigen von Abteilungen und deren Kontostand
+
+
+bis Mittwoch abend alles hinkriegen (außer Doku und Kommentaren)
 
 done:
 Jegor

@@ -12,7 +12,7 @@ import sqlite3
 
 class UI:
     # Setup SQLite Database
-    # should be in a separate file
+    # should be in a separate file (Data and User Management)
     def setup_database():
         # connecting with the file
         conn = sqlite3.connect("app_data.db")
@@ -37,7 +37,7 @@ class UI:
 
                     
     # Verify Login Credentials
-    # this should be in a separate file
+    # this should be in a separate file (Data and User Management)
     def verify_login(username, password):
         conn = sqlite3.connect("app_data.db")
         cursor = conn.cursor()
@@ -49,7 +49,7 @@ class UI:
         return None
 
     # updating the user role
-    # this should be in a separate file
+    # this should be in a separate file (Data and User Management)
     def update_user_role(username, new_role):
         conn = sqlite3.connect("app_data.db")
         cursor = conn.cursor()
@@ -60,6 +60,7 @@ class UI:
 
 
     # Add New User
+    # this should be in a separate file (Data and User Management)
     def add_new_user(username, password, role):
         try:
             conn = sqlite3.connect("app_data.db")
@@ -72,6 +73,7 @@ class UI:
             return False
 
     # Add New Department
+    # this should be in a separate file (Data and User Management)
     def add_department(name, initial_balance):
         try:
             conn = sqlite3.connect("app_data.db")
@@ -100,6 +102,7 @@ class UI:
 
 
     # Main App Window
+    # hier raus alle Funktionen rausziehen
     def open_main_window(role):
         print(f"User role detected: {role}")  # Debugging
         main_window = tk.Tk()
@@ -199,6 +202,7 @@ class UI:
             add_user_button = ttk.Button(tabs[5], text="Add User", command=handle_add_user)
             add_user_button.pack(pady=10)
 
+            # aus der Funktion rausziehen
             def handle_add_department():
                 dept_name = dept_name_entry.get()
                 initial_balance = dept_balance_entry.get()
@@ -215,7 +219,7 @@ class UI:
                         messagebox.showerror("Fehler", "Der Kontostand muss eine Zahl sein.")
                 else:
                     messagebox.showerror("Fehler", "Alle Felder müssen ausgefüllt werden.")
-
+            ###
             ttk.Label(tabs[4], text="Abteilung hinzufügen", font=("Arial", 14)).pack(pady=10)
             ttk.Label(tabs[4], text="Abteilungsname:").pack(pady=5)
             dept_name_entry = ttk.Entry(tabs[4])
@@ -232,6 +236,7 @@ class UI:
         main_window.mainloop()
 
     # for debugging/test
+    # this should be in a separate file (Data and User Management)
     def debug_database():
         conn = sqlite3.connect("app_data.db")
         cursor = conn.cursor()
@@ -247,6 +252,7 @@ class UI:
 
     # Login Window
     def open_login_window():
+        # rausziehen
         def handle_login():
             username = username_entry.get()
             password = password_entry.get()
@@ -258,7 +264,6 @@ class UI:
                 UI.open_main_window(user_role)  # Pass the role to the main window
             else:
                 messagebox.showerror("Login Failed", "Invalid username or password")
-
 
         login_window = tk.Tk()
         login_window.title("Login")
