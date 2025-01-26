@@ -1,3 +1,4 @@
+
 1. Wir müssen besser strukturieren. 
 1.1.1 login muss an Anfang der Datei
 1.1.2 Tabs müssen strukturiert sein
@@ -10,7 +11,7 @@
 	  Das muss auf jeden Fall in eigene Datei(en) rein.
 	  Sogar Erstellung der DB selber sollte in einer anderen Klasse sein, nicht im Interface
 	  Sonst wird die Interface Datei viel zu groß und intransparent.
-
+1.2. self.tabs machen # Jegor
 
 Aufteilen
 #Jegor
@@ -52,6 +53,7 @@ Tanja
 
 Jegor
 1. Funktionen rausziehen aus anderen Funktionen
+1.1 self.tabs
 2. Neue Dateien und Klassen erstellen
 3. UI Datei anpassen mit neuen Klassen
 4. pushen und Tanja sagen

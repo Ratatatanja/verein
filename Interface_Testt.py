@@ -11,6 +11,10 @@ from tkinter import ttk, messagebox
 import sqlite3
 
 class UI:
+    def init(self, accessible_tabs = []):
+        self.accessible_tabs = accessible_tabs
+    
+    
     # Setup SQLite Database
     # should be in a separate file (Data and User Management)
     def setup_database():
@@ -103,7 +107,7 @@ class UI:
 
     # Main App Window
     # hier raus alle Funktionen rausziehen
-    def open_main_window(role):
+    def open_main_window(self, role): ## need to add self to make it work
         print(f"User role detected: {role}")  # Debugging
         main_window = tk.Tk()
         main_window.title("Tabbed Interface App")
@@ -115,16 +119,16 @@ class UI:
         # Create Tabs Based on Role
         tabs = []
         if role == "Admin":
-            accessible_tabs = 6
+            self.accessible_tabs = 6
         elif role == "Kassenwart":
-            accessible_tabs = 3
+            self.accessible_tabs = 3
         elif role == "Finanz-Viewer":
-            accessible_tabs = 2
+            self.accessible_tabs = 2
         else:
-            accessible_tabs = 0
+            self.accessible_tabs = 0
         
         if role == "Admin":
-            accessible_tabs = [
+            self.accessible_tabs = [
                 "Dashboard", 
                 "Mitglieder", 
                 "Finanzen", 
@@ -133,15 +137,15 @@ class UI:
                 "Admin-Einstellungen"
             ]
         elif role == "Kassenwart":
-            accessible_tabs = ["Dashboard", "Mitglieder", "Finanzen"]
+            self.accessible_tabs = ["Dashboard", "Mitglieder", "Finanzen"]
         elif role == "Finanz-Viewer":
-            accessible_tabs = ["Dashboard", "Berichte"]
+            self.accessible_tabs = ["Dashboard", "Berichte"]
         else:
-            accessible_tabs = []
+            self.accessible_tabs = []
 
 
         tabs = []
-        for tab_name in accessible_tabs:
+        for tab_name in self.accessible_tabs:
             tab = ttk.Frame(tab_control)
             tab_control.add(tab, text=tab_name)
             ttk.Label(tab, text=f"Dies ist der Bereich: {tab_name}", font=("Arial", 14)).pack(pady=20)
@@ -149,7 +153,7 @@ class UI:
 
         
 
-        """for i in range(1, accessible_tabs + 1):
+        """for i in range(1, self.accessible_tabs + 1):
             tab = ttk.Frame(tab_control)
             tab_control.add(tab, text=f"Tab {i}")
             ttk.Label(tab, text=f"This is Tab {i}", font=("Arial", 14)).pack(pady=20)
@@ -157,9 +161,9 @@ class UI:
         
         """ # Only Admin role enabled
         if role == "Admin":
-            accessible_tabs = 5
+            self.accessible_tabs = 5
             tabs = []
-            for i in range(1, accessible_tabs + 1):
+            for i in range(1, self.accessible_tabs + 1):
                 tab = ttk.Frame(tab_control)
                 tab_control.add(tab, text=f"Tab {i}")
                 ttk.Label(tab, text=f"This is Tab {i}", font=("Arial", 14)).pack(pady=20)
@@ -254,6 +258,7 @@ class UI:
     def open_login_window():
         # rausziehen
         def handle_login():
+            UI = UI()
             username = username_entry.get()
             password = password_entry.get()
 
@@ -261,7 +266,7 @@ class UI:
             if user_role:
                 messagebox.showinfo("Login Success", "Welcome!")
                 login_window.destroy()
-                UI.open_main_window(user_role)  # Pass the role to the main window
+                UI.open_main_window(role=user_role)  # Pass the role to the main window
             else:
                 messagebox.showerror("Login Failed", "Invalid username or password")
 
@@ -282,29 +287,32 @@ class UI:
 
         login_window.mainloop()
 
-"""
-    def generate_tables(self):
+    """
+    def generate_departments(self):
+        # is supposed to populate an existing box
+        # what is table_listbox?
         self.table_listbox.delete(0, tk.END)
-        for i in range(1, DEFAULT_TABLE_COUNT + 1):
+        conn = sqlite3.connect("app_data.db")
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO users (username, password, role) VALUES (?, ?, ?)", (username, password, role))
             self.table_listbox.insert(tk.END, f"Tisch {i}")
         # show list
 
 
-    def create_finanzen_tab(tabs):
-
+    def populate_finanzen_tab(tabs):
         #This builds the UI elements for the table tab.
 
         # zeigt an Abteilungen
-        ttk.Button(self.tabs[5], text='Alle Abteilungen anzeigen',
-                command=generate_tables).pack(pady=5)
+        #ttk.Button(self.tabs[5], text='Alle Abteilungen anzeigen',
+        #        command=generate_departments).pack(pady=5)
         #ttk.Button(self.table_tab, text='Abteilung auswählen',
         #        command=self.select_table).pack(pady=5)
 
         # show list
-        ttk.Label(self.table_tab, text='Tische:').pack(pady=5)
-        self.table_listbox = tk.Listbox(self.table_tab, height=10, width=50)
-        self.table_listbox.pack(pady=10)
-"""
+        ttk.Label(self.accessible_tabs[1], text='Abteilungen:').pack(pady=5)
+        self.department_listbox = tk.Listbox(self.table_tab, height=10, width=50)
+        self.department_listbox.pack(pady=10)
+    """
 # Main Execution
 if __name__ == "__main__":
     UI.setup_database()
