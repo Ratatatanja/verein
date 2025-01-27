@@ -32,17 +32,26 @@ class ApplicationUI:
             if dept_name and initial_balance:
                 try:
                     initial_balance = float(initial_balance)
-                    success = self.department_manager.add_department(dept_name, initial_balance)                
+                    success = (self.department_manager.
+                               add_department(dept_name,initial_balance))
                     if success:
-                        messagebox.showinfo("Erfolg", f"Abteilung '{dept_name}' wurde hinzugefügt.")
+                        messagebox.showinfo(
+                            "Erfolg",f"Abteilung'{dept_name}'"
+                                     f"wurde hinzugefügt.")
                     else:
-                        messagebox.showerror("Fehler", f"Abteilung '{dept_name}' existiert bereits.")
+                        messagebox.showerror(
+                            "Fehler", f"Abteilung '{dept_name}'"
+                                      f" existiert bereits.")
                 except ValueError:
-                    messagebox.showerror("Fehler", "Der Kontostand muss eine Zahl sein.")
+                    messagebox.showerror(
+                        "Fehler", "Der Kontostand "
+                                  "muss eine Zahl sein.")
             else:
-                messagebox.showerror("Fehler", "Alle Felder müssen ausgefüllt werden.")
+                messagebox.showerror("Fehler", "Alle Felder "
+                                               "müssen ausgefüllt werden.")
 
-        ttk.Label(tab, text="Abteilung hinzufügen", font=("Arial", 14)).pack(pady=10)
+        ttk.Label(tab, text="Abteilung hinzufügen",
+                  font=("Arial", 14)).pack(pady=10)
         ttk.Label(tab, text="Abteilungsname:").pack(pady=5)
         dept_name_entry = ttk.Entry(tab)
         dept_name_entry.pack(pady=5)
@@ -51,29 +60,39 @@ class ApplicationUI:
         dept_balance_entry = ttk.Entry(tab)
         dept_balance_entry.pack(pady=5)
 
-        add_dept_button = ttk.Button(tab, text="Abteilung hinzufügen", command=handle_add_department)
+        add_dept_button = ttk.Button(tab, text="Abteilung hinzufügen",
+                                     command=handle_add_department)
         add_dept_button.pack(pady=10)
 
     def create_admin_settings_tab(self, parent_tab):
-        """Erstellt die UI für den Tab "Admin-Einstellungen"."""
+        """This creates the Tab Admin-Einstellungen."""
         def handle_add_user():
             username = username_entry.get()
             password = password_entry.get()
             role = role_combobox.get()
 
             if username and password and role:
-                success = self.user_manager.add_new_user(username, password, role)
+                success = self.user_manager.add_new_user(username,
+                                                         password, role)
                 if success:
-                    messagebox.showinfo("Erfolg", f"Benutzer '{username}' wurde hinzugefügt.")
+                    messagebox.showinfo("Erfolg",
+                                        f"Benutzer '{username}'"
+                                        f" wurde hinzugefügt.")
                     username_entry.delete(0, tk.END)
                     password_entry.delete(0, tk.END)
                     role_combobox.set("")
                 else:
-                    messagebox.showerror("Fehler", f"Benutzername '{username}' existiert bereits.")
+                    messagebox.showerror(
+                        "Fehler",
+                        f"Benutzername '{username}'"
+                        f" existiert bereits.")
             else:
-                messagebox.showerror("Fehler", "Alle Felder müssen ausgefüllt werden.")
+                messagebox.showerror("Fehler", "Alle"
+                                               " Felder müssen "
+                                               "ausgefüllt werden.")
 
-        ttk.Label(parent_tab, text="Benutzerverwaltung", font=("Arial", 14)).pack(pady=10)
+        ttk.Label(parent_tab, text="Benutzerverwaltung",
+                  font=("Arial", 14)).pack(pady=10)
 
         ttk.Label(parent_tab, text="Benutzername:").pack(pady=5)
         username_entry = ttk.Entry(parent_tab)
@@ -84,16 +103,20 @@ class ApplicationUI:
         password_entry.pack(pady=5)
 
         ttk.Label(parent_tab, text="Rolle:").pack(pady=5)
-        role_combobox = ttk.Combobox(parent_tab, values=["Admin", "Kassenwart", "Finanz-Viewer"])
+        role_combobox = ttk.Combobox(parent_tab, values=["Admin",
+                                                         "Kassenwart",
+                                                         "Finanz-Viewer"])
         role_combobox.pack(pady=5)
 
-        add_user_button = ttk.Button(parent_tab, text="Benutzer hinzufügen", command=handle_add_user)
+        add_user_button = ttk.Button(parent_tab,
+                                     text="Benutzer hinzufügen",
+                                     command=handle_add_user)
         add_user_button.pack(pady=10)
 
     def open_main_window(self, role):
-        """Erstellt und zeigt das Hauptfenster an."""
+        """This creates and shows the main window."""
         main_window = tk.Tk()
-        main_window.title("Main Application")
+        main_window.title("Vereinskassensystem")
         self.center_window(main_window, 1050, 800)
 
         tab_control = ttk.Notebook(main_window)
@@ -102,7 +125,8 @@ class ApplicationUI:
         for tab_name in accessible_tabs:
             tab = ttk.Frame(tab_control)
             tab_control.add(tab, text=tab_name)
-            ttk.Label(tab, text=f"Dies ist der Bereich: {tab_name}", font=("Arial", 14)).pack(pady=20)
+            ttk.Label(tab, text=f"Dies ist der Bereich: {tab_name}",
+                      font=("Arial", 14)).pack(pady=20)
 
             if tab_name == "Abteilungen hinzufügen" and role == "Admin":
                 self.add_department_tab(tab)
@@ -113,9 +137,10 @@ class ApplicationUI:
         main_window.mainloop()
 
     def get_accessible_tabs(self, role):
-        """Gibt die zugänglichen Tabs basierend auf der Benutzerrolle zurück."""
+        """Gives back the accessible tabs based on user role."""
         if role == "Admin":
-            return ["Dashboard", "Mitglieder", "Finanzen", "Berichte", "Abteilungen hinzufügen", "Admin-Einstellungen"]
+            return ["Dashboard", "Mitglieder", "Finanzen", "Berichte",
+                    "Abteilungen hinzufügen", "Admin-Einstellungen"]
         elif role == "Kassenwart":
             return ["Dashboard", "Mitglieder", "Finanzen"]
         elif role == "Finanz-Viewer":
@@ -123,18 +148,21 @@ class ApplicationUI:
         return []
 
     def open_login_window(self):
-        """Erstellt das Login-Fenster."""
+        """Creates the login-window."""
         def handle_login():
             username = username_entry.get()
             password = password_entry.get()
 
             role = self.user_manager.verify_login(username, password)
             if role:
-                messagebox.showinfo("Erfolg", "Login erfolgreich!")
+                messagebox.showinfo("Erfolg",
+                                    "Login erfolgreich!")
                 login_window.destroy()
                 self.open_main_window(role)
             else:
-                messagebox.showerror("Fehler", "Ungültiger Benutzername oder Passwort.")
+                messagebox.showerror("Fehler",
+                                     "Ungültiger Benutzername"
+                                     " oder Passwort.")
 
         login_window = tk.Tk()
         login_window.title("Login")
@@ -148,7 +176,8 @@ class ApplicationUI:
         password_entry = ttk.Entry(login_window, show="*")
         password_entry.pack(pady=5)
 
-        login_button = ttk.Button(login_window, text="Login", command=handle_login)
+        login_button = ttk.Button(login_window, text="Login",
+                                  command=handle_login)
         login_button.pack(pady=10)
 
         login_window.mainloop()

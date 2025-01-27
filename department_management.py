@@ -10,16 +10,17 @@ db_manager = DatabaseManager(db_name="app_data.db")
 
 class DepartmentManager:
     def __init__(self, db_manager):
-        """Initialisiert die Abteilungsverwaltung mit einem DatabaseManager-Objekt."""
+        """Initializes department management with database
+        manager object."""
         self.db_manager = db_manager
 
     def add_department(self, name, initial_balance):
-        """Fügt eine neue Abteilung hinzu."""
+        """Adds new department."""
         return self.db_manager.add_department(name, initial_balance)
     
 
     def get_departments(self):
-        """Ruft alle Abteilungen aus der Datenbank ab."""
+        """Gets all departments from database."""
         conn = sqlite3.connect(self.db_manager.db_name)
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM departments")
@@ -28,17 +29,19 @@ class DepartmentManager:
         return departments
 
     def update_department_balance(self, department_id, new_balance):
-        """Aktualisiert den Kontostand einer Abteilung."""
+        """updates account balance of department."""
         conn = sqlite3.connect(self.db_manager.db_name)
         cursor = conn.cursor()
-        cursor.execute("UPDATE departments SET balance = ? WHERE id = ?", (new_balance, department_id))
+        cursor.execute("UPDATE departments SET balance = ? WHERE id = ?",
+                       (new_balance, department_id))
         conn.commit()
         conn.close()
 
 if __name__ == "__main__":
     # Beispiel-Tests
     db_manager = DatabaseManager()
-    db_manager.setup_database()  # Stelle sicher, dass die Datenbank initialisiert ist
+    db_manager.setup_database()  # Stelle sicher, dass die Datenbank
+    # initialisiert ist
 
     dept_manager = DepartmentManager(db_manager)
 
@@ -52,6 +55,7 @@ if __name__ == "__main__":
 
     # Test: Abteilungssaldo aktualisieren
     if departments:
-        dept_manager.update_department_balance(departments[0][0], 2000.0)
+        dept_manager.update_department_balance(departments[0][0],
+                                               2000.0)
         updated_departments = dept_manager.get_departments()
         print("Aktualisierte Abteilungen:", updated_departments)

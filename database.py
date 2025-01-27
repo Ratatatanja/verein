@@ -10,7 +10,7 @@ class DatabaseManager:
         self.db_name = db_name
 
     def setup_database(self):
-        """Initialisiert die Datenbank und erstellt die Tabellen."""
+        """Initializes the databank and creates tables."""
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
 
@@ -20,7 +20,8 @@ class DatabaseManager:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
-                role TEXT NOT NULL CHECK(role IN ('Admin', 'Kassenwart', 'Finanz-Viewer'))
+                role TEXT NOT NULL CHECK(role IN 
+                ('Admin', 'Kassenwart', 'Finanz-Viewer'))
             )
         """)
 
@@ -28,34 +29,38 @@ class DatabaseManager:
         cursor.execute("PRAGMA table_info(users)")
         columns = [info[1] for info in cursor.fetchall()]
         if "role" not in columns:
-            cursor.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'Finanz-Viewer'")
+            cursor.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL"
+                           " DEFAULT 'Finanz-Viewer'")
 
         # Standard-Benutzer hinzufügen
-        cursor.execute("INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)",
+        cursor.execute("INSERT OR IGNORE INTO users "
+                       "(username, password, role) VALUES (?, ?, ?)",
                        ("admin", "admin", "Admin"))
 
         conn.commit()
         conn.close()
 
     def verify_login(self, username, password):
-        """Prüft die Anmeldedaten eines Benutzers."""
+        """Checks login data of user."""
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
-        cursor.execute("SELECT role FROM users WHERE username = ? AND password = ?", (username, password))
+        cursor.execute("SELECT role FROM users WHERE username = ?"
+                       " AND password = ?", (username, password))
         result = cursor.fetchone()
         conn.close()
         return result[0] if result else None
 
     def update_user_role(self, username, new_role):
-        """Aktualisiert die Rolle eines Benutzers."""
+        """Updates user role."""
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
-        cursor.execute("UPDATE users SET role = ? WHERE username = ?", (new_role, username))
+        cursor.execute("UPDATE users SET role = ? WHERE username = ?",
+                       (new_role, username))
         conn.commit()
         conn.close()
 
     def add_department(self, name, initial_balance):
-        """Fügt eine neue Abteilung hinzu."""
+        """Adds a department."""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -64,7 +69,9 @@ class DatabaseManager:
                 name TEXT NOT NULL UNIQUE,
                 balance REAL NOT NULL
             )""")
-            cursor.execute("INSERT INTO departments (name, balance) VALUES (?, ?)", (name, initial_balance))
+            cursor.execute("INSERT INTO departments (name, balance)"
+                           " VALUES (?, ?)",
+                           (name, initial_balance))
             conn.commit()
             conn.close()
             return True
@@ -72,7 +79,8 @@ class DatabaseManager:
             return False
 
     def debug_database(self):
-        """Gibt alle Benutzer in der Konsole aus (nur für Debugging)."""
+        """
+        Gives back all users in the terminal (for debugging)."""
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM users")
