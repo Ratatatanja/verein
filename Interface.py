@@ -11,9 +11,14 @@ from tkinter import ttk, messagebox
 import sqlite3
 
 class UI:
-    # Setup SQLite Database
+
+    def __init__(self, tabs=[]):
+        # tabs list (used in open_main_window())
+        self.tabs = tabs
+
+
     # should be in a separate file (Data and User Management)
-    def setup_database():
+    def setup_database(self):
         # connecting with the file
         conn = sqlite3.connect("app_data.db")
         cursor = conn.cursor()
@@ -50,7 +55,7 @@ class UI:
 
     # updating the user role
     # this should be in a separate file (Data and User Management)
-    def update_user_role(username, new_role):
+    def update_user_role(self, username, new_role):
         conn = sqlite3.connect("app_data.db")
         cursor = conn.cursor()
         cursor.execute("UPDATE users SET role = ? WHERE username = ?", (new_role, username))
@@ -103,7 +108,7 @@ class UI:
 
     # Main App Window
     # hier raus alle Funktionen rausziehen
-    def open_main_window(role):
+    def open_main_window(self, role):
         print(f"User role detected: {role}")  # Debugging
         main_window = tk.Tk()
         main_window.title("Tabbed Interface App")
@@ -112,8 +117,8 @@ class UI:
         # Create Tab Control
         tab_control = ttk.Notebook(main_window)
 
-        # Create Tabs Based on Role
-        tabs = []
+        # Create self.tabs Based on Role
+        self.tabs = []
         if role == "Admin":
             accessible_tabs = 6
         elif role == "Kassenwart":
@@ -140,12 +145,12 @@ class UI:
             accessible_tabs = []
 
 
-        tabs = []
+        self.tabs = []
         for tab_name in accessible_tabs:
             tab = ttk.Frame(tab_control)
             tab_control.add(tab, text=tab_name)
             ttk.Label(tab, text=f"Dies ist der Bereich: {tab_name}", font=("Arial", 14)).pack(pady=20)
-            tabs.append(tab)
+            self.tabs.append(tab)
 
         
 
@@ -153,24 +158,24 @@ class UI:
             tab = ttk.Frame(tab_control)
             tab_control.add(tab, text=f"Tab {i}")
             ttk.Label(tab, text=f"This is Tab {i}", font=("Arial", 14)).pack(pady=20)
-            tabs.append(tab)"""
+            self.tabs.append(tab)"""
         
         """ # Only Admin role enabled
         if role == "Admin":
             accessible_tabs = 5
-            tabs = []
+            self.tabs = []
             for i in range(1, accessible_tabs + 1):
                 tab = ttk.Frame(tab_control)
                 tab_control.add(tab, text=f"Tab {i}")
                 ttk.Label(tab, text=f"This is Tab {i}", font=("Arial", 14)).pack(pady=20)
-                tabs.append(tab)"""
+                self.tabs.append(tab)"""
 
 
         # Add Admin Panel in Tab 6 for Admin Role
-        if role == "Admin" and len(tabs) == 6:
+        if role == "Admin" and len(self.tabs) == 6:
             #Tab muss umbenannt werden!!!
             # Tanja: wir sollten auf jeden Fall Funktionen nicht hier deklarieren und muessen es anderswo schieben
-            def handle_add_user():
+            def handle_add_user(self):
                 new_username = username_entry.get()
                 new_password = password_entry.get()
                 new_role = role_combobox.get()
@@ -186,20 +191,20 @@ class UI:
                 else:
                     messagebox.showerror("Error", "All fields are required.")
 
-            ttk.Label(tabs[5], text="Add New User", font=("Arial", 14)).pack(pady=10)
-            ttk.Label(tabs[5], text="New Username:").pack(pady=5)
-            username_entry = ttk.Entry(tabs[5])
+            ttk.Label(self.tabs[5], text="Add New User", font=("Arial", 14)).pack(pady=10)
+            ttk.Label(self.tabs[5], text="New Username:").pack(pady=5)
+            username_entry = ttk.Entry(self.tabs[5])
             username_entry.pack(pady=5)
 
-            ttk.Label(tabs[5], text="New Password:").pack(pady=5)
-            password_entry = ttk.Entry(tabs[5],) #show'*' entfernt
+            ttk.Label(self.tabs[5], text="New Password:").pack(pady=5)
+            password_entry = ttk.Entry(self.tabs[5],) #show'*' entfernt
             password_entry.pack(pady=5)
 
-            ttk.Label(tabs[5], text="Role:").pack(pady=5)
-            role_combobox = ttk.Combobox(tabs[5], values=["Admin", "Kassenwart", "Finanz-Viewer"])
+            ttk.Label(self.tabs[5], text="Role:").pack(pady=5)
+            role_combobox = ttk.Combobox(self.tabs[5], values=["Admin", "Kassenwart", "Finanz-Viewer"])
             role_combobox.pack(pady=5)
 
-            add_user_button = ttk.Button(tabs[5], text="Add User", command=handle_add_user)
+            add_user_button = ttk.Button(self.tabs[5], text="Add User", command=handle_add_user)
             add_user_button.pack(pady=10)
 
             # aus der Funktion rausziehen
@@ -220,16 +225,16 @@ class UI:
                 else:
                     messagebox.showerror("Fehler", "Alle Felder müssen ausgefüllt werden.")
             ###
-            ttk.Label(tabs[4], text="Abteilung hinzufügen", font=("Arial", 14)).pack(pady=10)
-            ttk.Label(tabs[4], text="Abteilungsname:").pack(pady=5)
-            dept_name_entry = ttk.Entry(tabs[4])
+            ttk.Label(self.tabs[4], text="Abteilung hinzufügen", font=("Arial", 14)).pack(pady=10)
+            ttk.Label(self.tabs[4], text="Abteilungsname:").pack(pady=5)
+            dept_name_entry = ttk.Entry(self.tabs[4])
             dept_name_entry.pack(pady=5)
 
-            ttk.Label(tabs[4], text="Startsaldo:").pack(pady=5)
-            dept_balance_entry = ttk.Entry(tabs[4])
+            ttk.Label(self.tabs[4], text="Startsaldo:").pack(pady=5)
+            dept_balance_entry = ttk.Entry(self.tabs[4])
             dept_balance_entry.pack(pady=5)
 
-            add_dept_button = ttk.Button(tabs[4], text="Abteilung hinzufügen", command=handle_add_department)
+            add_dept_button = ttk.Button(self.tabs[4], text="Abteilung hinzufügen", command=handle_add_department)
             add_dept_button.pack(pady=10)
 
         tab_control.pack(expand=1, fill="both")
@@ -251,9 +256,9 @@ class UI:
 
 
     # Login Window
-    def open_login_window():
+    def open_login_window(self):
         # rausziehen
-        def handle_login():
+        def handle_login(self):
             username = username_entry.get()
             password = password_entry.get()
 
@@ -261,7 +266,7 @@ class UI:
             if user_role:
                 messagebox.showinfo("Login Success", "Welcome!")
                 login_window.destroy()
-                UI.open_main_window(user_role)  # Pass the role to the main window
+                UI.open_main_window(role=user_role)  # Pass the role to the main window
             else:
                 messagebox.showerror("Login Failed", "Invalid username or password")
 
@@ -290,12 +295,12 @@ class UI:
         # show list
 
 
-    def create_finanzen_tab(tabs):
+    def create_finanzen_tab(self.tabs):
 
         #This builds the UI elements for the table tab.
 
         # zeigt an Abteilungen
-        ttk.Button(self.tabs[5], text='Alle Abteilungen anzeigen',
+        ttk.Button(self.self.tabs[5], text='Alle Abteilungen anzeigen',
                 command=generate_tables).pack(pady=5)
         #ttk.Button(self.table_tab, text='Abteilung auswählen',
         #        command=self.select_table).pack(pady=5)
@@ -307,7 +312,8 @@ class UI:
 """
 # Main Execution
 if __name__ == "__main__":
-    UI.setup_database()
-    UI.open_login_window()
-    UI.update_user_role("admin", "Admin")  # Aktualisiere die Rolle für den Admin
+    ui = UI()
+    ui.setup_database()
+    ui.open_login_window()
+    ui.update_user_role("admin", "Admin")  # Aktualisiere die Rolle für den Admin
     
