@@ -23,6 +23,7 @@ class ApplicationUI:
         y = int((screen_height / 2) - (height / 2))
         window.geometry(f"{width}x{height}+{x}+{y}")
 
+
     def add_department_tab(self, tab):
         """This adds the department management funktions to the tab"""
         def handle_add_department():
@@ -63,6 +64,7 @@ class ApplicationUI:
         add_dept_button = ttk.Button(tab, text="Abteilung hinzufügen",
                                      command=handle_add_department)
         add_dept_button.pack(pady=10)
+
 
     def create_admin_settings_tab(self, parent_tab):
         """This creates the Tab Admin-Einstellungen."""
@@ -113,6 +115,36 @@ class ApplicationUI:
                                      command=handle_add_user)
         add_user_button.pack(pady=10)
 
+
+    def populate_departments(self):
+        self.department_listbox.delete(0, tk.END)
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        #if invoices_list is None:
+        #    messagebox.showinfo("Info", "Keine offenen Rechnungen vorhanden.")
+        #    return
+        self.cursor.execute("""SELECT name FROM departments""")
+        department_list = self.cursor.fetchall()
+        print(department_list)
+
+        for department in department_list:
+            self.department_listbox.insert(tk.END, f"{department}")
+
+
+    def create_finance_tab(self, tab):
+        #This builds the UI elements for the table tab.
+
+        # zeigt an Abteilungen
+        ttk.Button(tab, text='Alle Abteilungen anzeigen',
+                command=self.populate_departments).pack(pady=5)
+        #ttk.Button(tab, text='Abteilung auswählen',
+        #        command=self.select_table).pack(pady=5)
+        # show list
+        ttk.Label(tab, text='Abteilungen:').pack(pady=5)
+        self.department_listbox = tk.Listbox(tab, height=10, width=50)
+        self.department_listbox.pack(pady=10)
+
+
     def open_main_window(self, role):
         """This creates and shows the main window."""
         main_window = tk.Tk()
@@ -132,6 +164,10 @@ class ApplicationUI:
                 self.add_department_tab(tab)
             if role == "Admin" and tab_name == "Admin-Einstellungen":
                 self.create_admin_settings_tab(tab)
+            # populate_finance_tab Aufruf
+            if tab_name == "Finanzen":
+                if role == "Admin" or "Kassenwart":
+                    self.create_finance_tab(tab)
 
         tab_control.pack(expand=1, fill="both")
         main_window.mainloop()
@@ -182,7 +218,7 @@ class ApplicationUI:
 
         login_window.mainloop()
 
+# Main Execution
 if __name__ == "__main__":
     app = ApplicationUI()
     app.open_login_window()
-    
