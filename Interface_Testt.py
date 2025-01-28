@@ -23,6 +23,7 @@ class ApplicationUI:
         y = int((screen_height / 2) - (height / 2))
         window.geometry(f"{width}x{height}+{x}+{y}")
 
+
     def add_department_tab(self, tab):
         """This adds the department management funktions to the tab"""
         def handle_add_department():
@@ -115,28 +116,33 @@ class ApplicationUI:
         add_user_button.pack(pady=10)
 
 
+    def populate_departments(self):
+        self.department_listbox.delete(0, tk.END)
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        #if invoices_list is None:
+        #    messagebox.showinfo("Info", "Keine offenen Rechnungen vorhanden.")
+        #    return
+        self.cursor.execute("""SELECT name FROM departments""")
+        department_list = self.cursor.fetchall()
+        print(department_list)
 
-    """
-    def generate_tables(self):
-        self.table_listbox.delete(0, tk.END)
-        for i in range(1, DEFAULT_TABLE_COUNT + 1):
-            self.table_listbox.insert(tk.END, f"Tisch {i}")
-        # show list
-    """
+        for department in department_list:
+            self.department_listbox.insert(tk.END, f"{department}")
 
-    def create_finance_tab(self, role):
+
+    def create_finance_tab(self, tab):
         #This builds the UI elements for the table tab.
 
         # zeigt an Abteilungen
-        #ttk.Button(accessible_tabs[5], text='Alle Abteilungen anzeigen',
-        #        command=generate_tables).pack(pady=5)
-        #ttk.Button(self.table_tab, text='Abteilung auswählen',
+        ttk.Button(tab, text='Alle Abteilungen anzeigen',
+                command=self.populate_departments).pack(pady=5)
+        #ttk.Button(tab, text='Abteilung auswählen',
         #        command=self.select_table).pack(pady=5)
-        accessible_tabs = self.get_accessible_tabs(role)
         # show list
-        ttk.Label(accessible_tabs[2], text='Abteilungen:').pack(pady=5)
-        self.table_listbox = tk.Listbox(accessible_tabs[2], height=10, width=50)
-        self.table_listbox.pack(pady=10)
+        ttk.Label(tab, text='Abteilungen:').pack(pady=5)
+        self.department_listbox = tk.Listbox(tab, height=10, width=50)
+        self.department_listbox.pack(pady=10)
 
 
     def open_main_window(self, role):
@@ -158,9 +164,10 @@ class ApplicationUI:
                 self.add_department_tab(tab)
             if role == "Admin" and tab_name == "Admin-Einstellungen":
                 self.create_admin_settings_tab(tab)
-                # populate_finance_tab Aufruf
-            #if role == "Admin" or "Kassenwart":
-            #    self.create_finance_tab(role)
+            # populate_finance_tab Aufruf
+            if tab_name == "Finanzen":
+                if role == "Admin" or "Kassenwart":
+                    self.create_finance_tab(tab)
 
         tab_control.pack(expand=1, fill="both")
         main_window.mainloop()
@@ -215,4 +222,3 @@ class ApplicationUI:
 if __name__ == "__main__":
     app = ApplicationUI()
     app.open_login_window()
-    
