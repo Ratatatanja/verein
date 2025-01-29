@@ -9,7 +9,8 @@ from database import DatabaseManager
 from department_management import DepartmentManager
 
 class ApplicationUI:
-    def __init__(self):
+    def __init__(self, db_name="app_data.db"):
+        self.db_name = db_name
         self.db_manager = DatabaseManager()
         self.department_manager = DepartmentManager(self.db_manager)
         self.user_manager = UserManager(self.db_manager)
@@ -117,18 +118,46 @@ class ApplicationUI:
 
 
     def populate_departments(self):
+        """This function is for the button which shows all departments"""
+        import sqlite3
         self.department_listbox.delete(0, tk.END)
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
-        #if invoices_list is None:
-        #    messagebox.showinfo("Info", "Keine offenen Rechnungen vorhanden.")
-        #    return
-        self.cursor.execute("""SELECT name FROM departments""")
-        department_list = self.cursor.fetchall()
-        print(department_list)
-
+        # takes all department names
+        cursor.execute("""SELECT name FROM departments""")
+        department_list = cursor.fetchall()
+        # error message
+        if department_list is None:
+            messagebox.showinfo("Info", "Keine Abteilungen vorhanden.")
+            return
+        # populates the finance_tab with department names
         for department in department_list:
             self.department_listbox.insert(tk.END, f"{department}")
+
+
+    def show_department_balance(self):
+        """This function is for the button which shows all departments"""
+        import sqlite3
+        self.department_balance_listbox.delete(0, tk.END)
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        # saves as variable the department that was clicked on
+        department_selected = self.department_listbox.curselection()
+        # converts it to text
+        department_txt = ''.join(map(str, department_selected))
+        # converts it to int and adds +1, so it equals id of the department
+        department_int = int(department_txt)+1
+        # gives out the balance of the department
+        try:
+            cursor.execute("""SELECT balance FROM departments
+                                WHERE id = (?)""", (department_int,))
+            department_balance = cursor.fetchall()
+            # populates the balance_tab with balance of the department
+            for balance in department_balance:
+                self.department_balance_listbox.insert(tk.END, f"{balance}")
+        except Exception as e:
+            messagebox.showerror("Info", "Bitte wählen sie erst eine Abteilung aus.")
+            return
 
 
     def create_finance_tab(self, tab):
@@ -137,12 +166,19 @@ class ApplicationUI:
         # zeigt an Abteilungen
         ttk.Button(tab, text='Alle Abteilungen anzeigen',
                 command=self.populate_departments).pack(pady=5)
-        #ttk.Button(tab, text='Abteilung auswählen',
-        #        command=self.select_table).pack(pady=5)
-        # show list
+        ttk.Button(tab, text='Kontostand der Abteilung anzeigen',
+                command=self.show_department_balance).pack(pady=5)
+
+        # box with departments
         ttk.Label(tab, text='Abteilungen:').pack(pady=5)
         self.department_listbox = tk.Listbox(tab, height=10, width=50)
         self.department_listbox.pack(pady=10)
+
+        # box with department money
+        ttk.Label(tab, text='Kontostand der Abteilung:').pack(pady=5)
+        self.department_balance_listbox = tk.Listbox(tab, height=2, width=50)
+        self.department_balance_listbox.pack(pady=10)
+
 
 
     def open_main_window(self, role):
