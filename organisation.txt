@@ -48,26 +48,28 @@ Tanja
 - Finanztabs machen (anzeigen) +
 - deposit_money +
 - withdraw_money +
-- Transferhistorie
-- (transfer_money) 
-
+- Transferhistorie +
 
 Jegor
-1. Funktionen rausziehen aus anderen Funktionen
-1.1 self.tabs
-2. Neue Dateien und Klassen erstellen
-3. UI Datei anpassen mit neuen Klassen
-4. pushen und Tanja sagen
+1. Funktionen rausziehen aus anderen Funktionen (-)
+1.1 self.tabs +
+2. Neue Dateien und Klassen erstellen +
+3. UI Datei anpassen mit neuen Klassen +
+4. pushen und Tanja sagen +
 - Dokumentation
 
+Endspurt
+Tanja
+- Finanzbuttons einbinden
+- transfer_money 
+- Transfer Einbinden
+
+Jegor
 # Finanzübersicht Tab
 - Adminbutton bei Finanzübersicht
 - speichern als csv (Userdatei speichern als Beispiel)
 - Button für speichern 
 - anzeigen von Abteilungen und deren Kontostand
-
-
-bis Mittwoch abend alles hinkriegen (außer Doku und Kommentaren)
 
 done:
 Jegor
