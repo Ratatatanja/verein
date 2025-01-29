@@ -45,11 +45,12 @@ Tanja
 
 # Mittwoch
 Tanja
-- Finanztabs machen (anzeigen)
-- withdraw_money, 
+- Finanztabs machen (anzeigen) +
+- deposit_money +
+- withdraw_money +
 - Transferhistorie
-- deposit_money
 - (transfer_money) 
+
 
 Jegor
 1. Funktionen rausziehen aus anderen Funktionen

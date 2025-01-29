@@ -180,7 +180,6 @@ class ApplicationUI:
         self.department_balance_listbox.pack(pady=10)
 
 
-
     def open_main_window(self, role):
         """This creates and shows the main window."""
         main_window = tk.Tk()

@@ -8,6 +8,8 @@ import sqlite3
 class DatabaseManager:
     def __init__(self, db_name="app_data.db"):
         self.db_name = db_name
+        # records what kind of finance operation has been done
+        #self.operation_type = operation_type
 
     def setup_database(self):
         """Initializes the databank and creates tables."""
@@ -78,6 +80,85 @@ class DatabaseManager:
         except sqlite3.IntegrityError:
             return False
 
+
+    def add_balance(self, department_id, amount):
+        try:
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute("""SELECT balance FROM departments
+                                WHERE id = (?)""", (department_id,))
+            department_balance = cursor.fetchall()
+            print(department_balance)
+            new_balance = int(amount)+department_balance[0][0]
+            cursor.execute("""UPDATE departments
+            SET balance = (?)
+            WHERE id = (?)""", (new_balance, department_id))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.IntegrityError:
+            return False
+
+
+    def reduce_balance(self, department_id, amount):
+        try:
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute("""SELECT balance FROM departments
+                                WHERE id = (?)""", (department_id,))
+            department_balance = cursor.fetchall()
+            print(department_balance)
+            # if not enough money, money can't be withdrawn
+            if new_balance < 0:
+                return False
+            new_balance = int(amount)-department_balance[0][0]
+            cursor.execute("""UPDATE departments
+            SET balance = (?)
+            WHERE id = (?)""", (new_balance, department_id))
+            conn.commit()
+            conn.close()
+            department_name = self.get_department_name(department_id)
+            self.record(department_name, type="withdraw", amount=amount, new_balance=new_balance)
+            return True
+        except sqlite3.IntegrityError:
+            return False
+
+
+    def get_department_name(self, department_id):
+        try:
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute("""SELECT name FROM departments
+                                WHERE id = (?)""", (department_id,))
+            department_name = cursor.fetchall()
+            return department_name
+        except sqlite3.IntegrityError:
+            return False
+
+
+    def record(self, department_name, type, amount, new_balance):
+        try:
+            conn = sqlite3.connect(self.db_name)
+            cursor = conn.cursor()
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                department TEXT NOT NULL,
+                operation TEXT NOT NULL,
+                amount REAL NOT NULL,
+                balance REAL NOT NULL)
+                """)
+            # records what had been done in this department
+            cursor.execute("""INSERT INTO history 
+                           (department, operation, amount, balance)
+                           VALUES (?, ?, ?, ?)""",
+                           (department_name, type, amount, new_balance))
+            conn.commit()
+            conn.close()
+            return True
+        except sqlite3.IntegrityError:
+            return False
+
     def debug_database(self):
         """
         Gives back all users in the terminal (for debugging)."""
@@ -88,3 +169,10 @@ class DatabaseManager:
         conn.close()
         for user in users:
             print(user)
+
+
+# Main Execution
+if __name__ == "__main__":
+    db = DatabaseManager()
+    #db.add_balance(1,10)
+    db.record(department_name="Disco", type="deposit", amount="10", new_balance="2010")
