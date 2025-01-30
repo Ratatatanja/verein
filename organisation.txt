@@ -60,8 +60,7 @@ Jegor
 
 Endspurt
 Tanja
-- Finanzbuttons einbinden
-- transfer_money 
+- Finanzbuttons einbinden +
 - Transfer Einbinden
 
 Jegor
@@ -70,6 +69,8 @@ Jegor
 - speichern als csv (Userdatei speichern als Beispiel)
 - Button für speichern 
 - anzeigen von Abteilungen und deren Kontostand
+- Dokumentation
+- unnötige Tabs löschen
 
 done:
 Jegor

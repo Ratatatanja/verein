@@ -7,6 +7,7 @@ from tkinter import ttk, messagebox
 from user_management import UserManager
 from database import DatabaseManager
 from department_management import DepartmentManager
+from finance import Finance
 
 class ApplicationUI:
     def __init__(self, db_name="app_data.db"):
@@ -14,6 +15,7 @@ class ApplicationUI:
         self.db_manager = DatabaseManager()
         self.department_manager = DepartmentManager(self.db_manager)
         self.user_manager = UserManager(self.db_manager)
+        self.fin = Finance()
         self.db_manager.setup_database()
 
     def center_window(self, window, width, height):
@@ -194,7 +196,7 @@ class ApplicationUI:
     def handle_deposit(self):
         try:
             self.deposit_amount = self.amount_entry.get()
-            self.db_manager.add_balance(self.department, self.deposit_amount)
+            self.fin.add_balance(self.department, self.deposit_amount)
             messagebox.showinfo("Info",
                                 f"Sie haben erfolgreich {self.deposit_amount} hinzugefügt.")
             self.deposit_window.destroy()
@@ -233,10 +235,49 @@ class ApplicationUI:
     def handle_withdraw(self):
         try:
             self.withdraw_amount = self.withdraw_entry.get()
-            self.db_manager.reduce_balance(self.department, self.withdraw_amount)
+            self.fin.reduce_balance(self.department, self.withdraw_amount)
             messagebox.showinfo("Info",
                                 f"Sie haben erfolgreich {self.withdraw_amount} abgehoben.")
-            self.deposit_window.destroy()
+            self.withdraw_window.destroy()
+        except Exception as e:
+            messagebox.showerror("Info", "Dieser Betrag ist zu hoch. Geben sie kleineren Betrag ein.")
+            return
+
+
+    def transfer_money(self)
+        """This function transfers money from one department to another"""
+        # saves as variable the department that was clicked on
+        department_selected = self.department_listbox.curselection()
+        try:
+            # gets the name of the department
+            for i in department_selected:
+                self.department = self.department_listbox.get(i)
+                print(self.department)
+            self.withdraw_window = tk.Toplevel()
+            # window title
+            self.withdraw_window.title("Eingabe")
+            # sets the geometry
+            self.center_window(self.withdraw_window, 600, 200)
+            # text of the window
+            tk.Label(self.withdraw_window, text=f"Geben sie ein wie viel Geld sie von der Abteilung {self.department} abheben wollen").pack()
+            self.withdraw_entry = ttk.Entry(self.withdraw_window)
+            self.withdraw_entry.pack(pady=5)
+            withdraw_button = ttk.Button(self.withdraw_window, text="Geld abheben",
+                                     command=self.handle_withdraw)
+            withdraw_button.pack(pady=10)
+        except Exception as e:
+            messagebox.showerror("Info", "Bitte geben sie einen \
+                                 gültigen Betrag ein.")
+            return
+
+
+    def handle_withdraw(self):
+        try:
+            self.withdraw_amount = self.withdraw_entry.get()
+            self.fin.reduce_balance(self.department, self.withdraw_amount)
+            messagebox.showinfo("Info",
+                                f"Sie haben erfolgreich {self.withdraw_amount} abgehoben.")
+            self.withdraw_window.destroy()
         except Exception as e:
             messagebox.showerror("Info", "Dieser Betrag ist zu hoch. Geben sie kleineren Betrag ein.")
             return
@@ -254,6 +295,8 @@ class ApplicationUI:
                 command=self.deposit_money).pack(pady=5)
         ttk.Button(tab, text='Geld abheben vom Abteilungskonto',
                 command=self.withdraw_money).pack(pady=5)
+        ttk.Button(tab, text='Geld abheben vom Abteilungskonto',
+                command=self.transfer_money).pack(pady=5)
 
         # box with departments
         ttk.Label(tab, text='Abteilungen:').pack(pady=5)
