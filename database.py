@@ -81,43 +81,49 @@ class DatabaseManager:
             return False
 
 
-    def add_balance(self, department_id, amount):
+    def add_balance(self, department_name, amount):
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
             cursor.execute("""SELECT balance FROM departments
-                                WHERE id = (?)""", (department_id,))
+                                WHERE name = (?)""", (department_name,)) # brought back (,)
             department_balance = cursor.fetchall()
-            print(department_balance)
+            print(department_balance[0][0])
+            print(amount)
+            print(type(amount))
             new_balance = int(amount)+department_balance[0][0]
+            print(new_balance)
             cursor.execute("""UPDATE departments
             SET balance = (?)
-            WHERE id = (?)""", (new_balance, department_id))
+            WHERE name = (?)""", (new_balance, department_name))
             conn.commit()
             conn.close()
+            # fetches the name of the department using the id
+            # records the transaction
+            self.record(department_name, type="deposit", amount=amount, new_balance=new_balance)
             return True
         except sqlite3.IntegrityError:
             return False
 
 
-    def reduce_balance(self, department_id, amount):
+    def reduce_balance(self, department_name, amount):
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
             cursor.execute("""SELECT balance FROM departments
-                                WHERE id = (?)""", (department_id,))
+                                WHERE name = (?)""", (department_name,))
             department_balance = cursor.fetchall()
             print(department_balance)
+            new_balance = department_balance[0][0]-int(amount)
             # if not enough money, money can't be withdrawn
             if new_balance < 0:
                 return False
-            new_balance = int(amount)-department_balance[0][0]
             cursor.execute("""UPDATE departments
             SET balance = (?)
-            WHERE id = (?)""", (new_balance, department_id))
+            WHERE name = (?)""", (new_balance, department_name))
             conn.commit()
             conn.close()
-            department_name = self.get_department_name(department_id)
+            # records the transaction
             self.record(department_name, type="withdraw", amount=amount, new_balance=new_balance)
             return True
         except sqlite3.IntegrityError:
@@ -175,4 +181,5 @@ class DatabaseManager:
 if __name__ == "__main__":
     db = DatabaseManager()
     #db.add_balance(1,10)
-    db.record(department_name="Disco", type="deposit", amount="10", new_balance="2010")
+    db.reduce_balance("wettessen",10)
+    #db.record(department_name="Disco", type="deposit", amount="10", new_balance="2010")
