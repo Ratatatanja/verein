@@ -2,12 +2,15 @@
 
 __author__ = "5158850, Novgorodtseva, 8392145, Reich"
 
+import sqlite3
+import csv
 import tkinter as tk
 from tkinter import ttk, messagebox
 from user_management import UserManager
 from database import DatabaseManager
 from department_management import DepartmentManager
-from finance import Finance
+from finance_test import Finance
+import datetime
 
 class ApplicationUI:
     def __init__(self, db_name="app_data.db"):
@@ -309,6 +312,115 @@ class ApplicationUI:
         self.department_balance_listbox.pack(pady=10)
 
 
+
+    def create_transaction_history_tab(self, tab):
+        """Erstellt die UI für die Transaktionshistorie."""
+        ttk.Label(tab, text="Transaktionshistorie",
+                    font=("Arial", 14)).pack(pady=10)
+
+        self.transaction_tree = ttk.Treeview(tab, columns=(
+        "department", "operation", "amount", "balance", "timestamp",
+        "username", "role"), show="headings")
+        self.transaction_tree.heading("department", text="Abteilung")
+        self.transaction_tree.heading("operation", text="Operation")
+        self.transaction_tree.heading("amount", text="Betrag")
+        self.transaction_tree.heading("balance", text="Kontostand")
+        self.transaction_tree.heading("timestamp", text="Datum/Zeit")
+        self.transaction_tree.heading("username", text="Benutzer")
+        self.transaction_tree.heading("role", text="Rolle")
+
+        self.transaction_tree.pack(pady=10, fill="both", expand=True)
+        ttk.Button(tab, text="Historie aktualisieren",
+                    command=self.load_transaction_history).pack(pady=5)
+
+        # Export-Button nur für Admins anzeigen
+        if self.user_role == "Admin":
+            ttk.Button(tab, text="CSV exportieren",
+                        command=self.export_to_csv).pack(pady=5)
+
+        self.load_transaction_history()
+
+    def load_transaction_history(self):
+        """Lädt die Transaktionshistorie aus der Datenbank."""
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM history")
+        records = cursor.fetchall()
+        conn.close()
+
+        # Alte Einträge löschen
+        for row in self.transaction_tree.get_children():
+            self.transaction_tree.delete(row)
+
+        # Neue Einträge hinzufügen
+        for record in records:
+            self.transaction_tree.insert("", "end", values=record)
+
+    def export_to_csv(self):
+        """Exportiert die Transaktionshistorie als CSV-Datei."""
+        filename = "transaction_history.csv"
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM history")
+        records = cursor.fetchall()
+        conn.close()
+
+        with open(filename, "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                ["Abteilung", "Operation", "Betrag", "Kontostand",
+                 "Datum/Zeit", "Benutzer", "Rolle"])
+            writer.writerows(records)
+
+        messagebox.showinfo("Erfolg",
+                            f"Transaktionshistorie wurde als {filename} gespeichert.")
+
+        """def handle_login(self, username, password):
+            #Verarbeitet den Login und speichert die Benutzerrolle.
+            role = self.user_manager.verify_login(username, password)
+            if role:
+                self.user_role = role  # Speichert die Benutzerrolle für spätere Checks
+                messagebox.showinfo("Erfolg", "Login erfolgreich!")
+                self.open_main_window(role)
+            else:
+                messagebox.showerror("Fehler",
+                                     "Ungültiger Benutzername oder Passwort.")
+
+        def open_main_window(self, role):
+            #Erstellt und zeigt das Hauptfenster an.
+            main_window = tk.Tk()
+            main_window.title("Vereinskassensystem")
+
+            tab_control = ttk.Notebook(main_window)
+            accessible_tabs = self.get_accessible_tabs(role)
+
+            for tab_name in accessible_tabs:
+                tab = ttk.Frame(tab_control)
+                tab_control.add(tab, text=tab_name)
+
+                if tab_name == "Transaktionshistorie":
+                    self.create_transaction_history_tab(tab)
+                elif tab_name == "Finanzen":
+                    self.create_finance_tab(tab)
+                elif tab_name == "Abteilungen hinzufügen":
+                    self.add_department_tab(tab)
+                elif tab_name == "User Management":
+                    self.create_admin_settings_tab(tab)
+
+            tab_control.pack(expand=1, fill="both")
+            main_window.mainloop()
+
+        def get_accessible_tabs(self, role):
+            #Gibt die zugänglichen Tabs basierend auf der Benutzerrolle zurück.
+            if role == "Admin":
+                return ["Finanzen", "Transaktionshistorie",
+                        "Abteilungen hinzufügen", "User Management"]
+            elif role == "Kassenwart":
+                return ["Finanzen", "Transaktionshistorie"]
+            elif role == "Finanz-Viewer":
+                return ["Finanzen-Ansicht", "Transaktionshistorie-Ansicht"]
+            return []"""
+
     def open_main_window(self, role):
         """This creates and shows the main window."""
         main_window = tk.Tk()
@@ -326,12 +438,14 @@ class ApplicationUI:
 
             if tab_name == "Abteilungen hinzufügen" and role == "Admin":
                 self.add_department_tab(tab)
-            if role == "Admin" and tab_name == "User Management":
+            if tab_name == "User Management" and role == "Admin":
                 self.create_admin_settings_tab(tab)
             # populate_finance_tab Aufruf
             if tab_name == "Finanzen":
                 if role == "Admin" or "Kassenwart":
                     self.create_finance_tab(tab)
+            if tab_name == "Transaktionshistorie":
+                self.create_transaction_history_tab(tab)
 
         tab_control.pack(expand=1, fill="both")
         main_window.mainloop()
@@ -363,6 +477,7 @@ class ApplicationUI:
                 messagebox.showerror("Fehler",
                                      "Ungültiger Benutzername"
                                      " oder Passwort.")
+
 
         login_window = tk.Tk()
         login_window.title("Login")
