@@ -38,6 +38,14 @@ class ApplicationUI:
             if dept_name and initial_balance:
                 try:
                     initial_balance = float(initial_balance)
+
+                    # Negative Werte verhindern
+                    if initial_balance < 0:
+                        messagebox.showerror("Fehler",
+                                             "Der Startsaldo darf "
+                                             "nicht negativ sein!")
+                        return
+
                     success = (self.department_manager.
                                add_department(dept_name,initial_balance))
                     if success:
