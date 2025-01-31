@@ -15,11 +15,7 @@ class Finance:
             cursor.execute("""SELECT balance FROM departments
                                 WHERE name = (?)""", (department_name,)) # brought back (,)
             department_balance = cursor.fetchall()
-            print(department_balance[0][0])
-            print(amount)
-            print(type(amount))
             new_balance = int(amount)+department_balance[0][0]
-            print(new_balance)
             cursor.execute("""UPDATE departments
             SET balance = (?)
             WHERE name = (?)""", (new_balance, department_name))

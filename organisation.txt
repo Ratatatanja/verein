@@ -61,16 +61,21 @@ Jegor
 Endspurt
 Tanja
 - Finanzbuttons einbinden +
-- Transfer Einbinden
+- Transfer Einbinden +
+- bei auswahl (wenn reingeschrieben) Fehlermeldung
+- Docstrings
+- Graphen
+- hochladen
 
 Jegor
 # Finanzübersicht Tab
-- Adminbutton bei Finanzübersicht
-- speichern als csv (Userdatei speichern als Beispiel)
-- Button für speichern 
-- anzeigen von Abteilungen und deren Kontostand
-- Dokumentation
-- unnötige Tabs löschen
+- speichern als csv (Userdatei speichern als Beispiel) +
+- Button für speichern +
+- anzeigen von Abteilungen und deren Kontostand +
+- Dokumentation 
+- unnötige Tabs löschen +
+- bei auswahl (wenn reingeschrieben) Fehlermeldung
+- negative zahlen bei Abteilung
 
 done:
 Jegor

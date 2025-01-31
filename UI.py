@@ -111,7 +111,8 @@ class ApplicationUI:
         password_entry.pack(pady=5)
 
         ttk.Label(parent_tab, text="Rolle:").pack(pady=5)
-        role_combobox = ttk.Combobox(parent_tab, values=["Admin",
+        role_combobox = ttk.Combobox(parent_tab, state="readonly",
+                                     values=["Admin",
                                                          "Kassenwart",
                                                          "Finanz-Viewer"])
         role_combobox.pack(pady=5)
@@ -120,26 +121,6 @@ class ApplicationUI:
                                      text="Benutzer hinzufügen",
                                      command=handle_add_user)
         add_user_button.pack(pady=10)
-
-
-    def populate_departments(self):
-        """This function is for the button which shows all departments"""
-        import sqlite3
-        self.department_combobox.delete(0, tk.END)
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        # takes all department names
-        cursor.execute("""SELECT name FROM departments""")
-        department_list = cursor.fetchall()
-        # error message
-        self.department = self.department_combobox.get()
-        if self.department == "":
-            messagebox.showerror("Info", "Bitte wählen sie erst eine "
-                                "Abteillung aus.")
-            return
-        # populates the finance_tab with department names
-        for department in department_list:
-            self.department_combobox.insert(tk.END, f"{department[0]}")
 
 
     def show_department_balance(self):
@@ -197,15 +178,22 @@ class ApplicationUI:
     def handle_deposit(self):
         try:
             self.deposit_amount = self.amount_entry.get()
-            if self.withdraw_amount < 0:
+            no_point_amount = self.deposit_amount.replace('.', '', 1)
+            print("no point",no_point_amount)
+            if no_point_amount.isdigit() == False:
+                messagebox.showerror(
+                        "Fehler", "Der Betrag muss eine Zahl sein."
+                        " Nachkommastellen sollen mit Punkt abgetrennt werden.")
+                return
+            if float(self.deposit_amount) < 0:
                 messagebox.showerror("Info", "Bitte geben sie einen nicht negativen Betrag ein.")
                 return
-            self.fin.add_balance(self.department, self.deposit_amount)
+            self.fin.add_balance(self.department, float(self.deposit_amount))
             messagebox.showinfo("Info",
                                 f"Sie haben erfolgreich {self.deposit_amount} hinzugefügt.")
             self.deposit_window.destroy()
         except Exception as e:
-            messagebox.showerror("Info", "Fehler bei Deposit Funktion.")
+            messagebox.showerror("Info", "Fehler beim Einzahlen von Geld.")
             return
 
 
@@ -244,7 +232,17 @@ class ApplicationUI:
         finance function called reduce_money()."""
         try:
             self.withdraw_amount = self.withdraw_entry.get()
-            self.fin.reduce_balance(self.department, self.withdraw_amount)
+            no_point_amount = self.withdraw_amount.replace('.', '', 1)
+            print("no point",no_point_amount)
+            if no_point_amount.isdigit() == False:
+                messagebox.showerror(
+                        "Fehler", "Der Betrag muss eine Zahl sein."
+                        " Nachkommastellen sollen mit Punkt abgetrennt werden.")
+                return
+            if float(self.withdraw_amount) < 0:
+                messagebox.showerror("Info", "Bitte geben sie einen nicht negativen Betrag ein.")
+                return
+            self.fin.reduce_balance(self.department, float(self.withdraw_amount))
             messagebox.showinfo("Info",
                                 f"Sie haben erfolgreich {self.withdraw_amount} abgehoben.")
             self.withdraw_window.destroy()
@@ -287,7 +285,8 @@ class ApplicationUI:
             department_list = cursor.fetchall()
             ttk.Label(self.transfer_window, text="Wählen sie aus zu welcher "
                       "Abteilungen Sie das Geld überweisen wollen:").pack(pady=5)
-            self.department_combobox = ttk.Combobox(self.transfer_window, values=department_list)
+            self.department_combobox = ttk.Combobox(self.transfer_window, state="readonly",
+                                                    values=department_list)
             self.department_combobox.pack(pady=5)
 
             # text of the window
@@ -307,6 +306,15 @@ class ApplicationUI:
         """Sends money from one departmenmt to another."""
         try:
             self.transfer_amount = self.transfer_entry.get()
+            no_point_amount = self.transfer_amount.replace('.', '', 1)
+            if no_point_amount.isdigit() == False:
+                messagebox.showerror(
+                        "Fehler", "Der Betrag muss eine Zahl sein."
+                        " Nachkommastellen sollen mit Punkt abgetrennt werden.")
+                return
+            if float(self.transfer_amount) < 0:
+                messagebox.showerror("Info", "Bitte geben sie einen nicht negativen Betrag ein.")
+                return
             # the department to which the money is transferred to
             self.end_department = self.department_combobox.get()
             if self.end_department == self.department:
@@ -314,7 +322,7 @@ class ApplicationUI:
                                      "Abteilung aus, welche nicht identisch "
                                      "mit der Originalabteilung ist.")
                 return
-            status = self.fin.reduce_balance(self.department, self.transfer_amount)
+            status = self.fin.reduce_balance(self.department, float(self.transfer_amount))
             if status == False:
                 messagebox.showerror("Info", "Dieser Betrag ist zu hoch. Geben sie kleineren Betrag ein.")
                 return
@@ -327,28 +335,11 @@ class ApplicationUI:
             messagebox.showerror("Info", "Bitte geben sie eine Zahl ein als Betrag.")
             return
 
-            success = self.fin.reduce_balance(self.department,
-                                              self.transfer_amount)
-            if not success:
-                messagebox.showerror("Fehler",
-                                     "Nicht genug Guthaben für die Überweisung!")
-                return
-
-            self.fin.add_balance(self.end_department, self.transfer_amount)
-            messagebox.showinfo("Erfolg",
-                                f"Sie haben erfolgreich {self.transfer_amount} überwiesen \
-                                von {self.department} nach {self.end_department}.")
-            self.transfer_window.destroy()
-
-        except Exception as e:
-            messagebox.showerror("Fehler", "Überweisung fehlgeschlagen.")
 
     def create_finance_tab(self, tab):
         """This builds the UI elements for the table tab."""
 
-        # zeigt an Abteilungen
-        ttk.Button(tab, text='Alle Abteilungen anzeigen',
-                command=self.populate_departments).pack(pady=5)
+        # alle Buttons
         ttk.Button(tab, text='Kontostand der Abteilung anzeigen',
                 command=self.show_department_balance).pack(pady=5)
         ttk.Button(tab, text='Geld einzahlen in das Abteilungskonto',
@@ -366,7 +357,7 @@ class ApplicationUI:
         cursor.execute("""SELECT name FROM departments""")
         department_list = cursor.fetchall()
         ttk.Label(tab, text="Abteilungen:").pack(pady=5)
-        self.department_combobox = ttk.Combobox(tab, values=department_list)
+        self.department_combobox = ttk.Combobox(tab, state="readonly", values=department_list)
         self.department_combobox.pack(pady=5)
 
         # box with department money
