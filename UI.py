@@ -240,34 +240,17 @@ class ApplicationUI:
     def handle_withdraw(self):
         """This function triggers when clicking on the button: "Geld abheben"
         inside the withdraw_money() function.
-        It gets the amount of money from the entry box and triggers the 
+        It gets the amount of money from the entry box and triggers the
         finance function called reduce_money()."""
         try:
             self.withdraw_amount = self.withdraw_entry.get()
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
-=======
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
-            if self.withdraw_amount < 0:
-                messagebox.showerror("Info", "Bitte geben sie einen nicht negativen Betrag ein.")
-                return
-            status = self.fin.reduce_balance(self.department, self.withdraw_amount)
-            if status == False:
-                messagebox.showerror("Info", "Dieser Betrag ist zu hoch. Geben sie kleineren Betrag ein.")
-                return
+            self.fin.reduce_balance(self.department, self.withdraw_amount)
             messagebox.showinfo("Info",
                                 f"Sie haben erfolgreich {self.withdraw_amount} abgehoben.")
             self.withdraw_window.destroy()
         except Exception as e:
             messagebox.showerror("Info", "Dieser Betrag ist zu hoch. Geben sie kleineren Betrag ein.")
             return
->>>>>>> 6eca7aaf72c0a07b4eb80a6a657a35ab9c95a731
 
             # Checks if withdraw was a success
             success = self.fin.reduce_balance(self.department,
@@ -324,21 +307,6 @@ class ApplicationUI:
         """Sends money from one departmenmt to another."""
         try:
             self.transfer_amount = self.transfer_entry.get()
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-            self.end_department = self.department_combobox.get()
-=======
->>>>>>> Stashed changes
-=======
-<<<<<<< HEAD
-            self.end_department = self.department_combobox.get()
-=======
->>>>>>> Stashed changes
-            if self.withdraw_amount < 0:
-                messagebox.showerror("Info", "Bitte geben sie einen nicht negativen Betrag ein.")
-                return
             # the department to which the money is transferred to
             self.end_department = self.department_combobox.get()
             if self.end_department == self.department:
@@ -358,12 +326,6 @@ class ApplicationUI:
         except Exception as e:
             messagebox.showerror("Info", "Bitte geben sie eine Zahl ein als Betrag.")
             return
->>>>>>> 6eca7aaf72c0a07b4eb80a6a657a35ab9c95a731
-
-            if self.end_department == self.department:
-                messagebox.showerror("Fehler",
-                                     "Sie können kein Geld an dieselbe Abteilung überweisen!")
-                return
 
             success = self.fin.reduce_balance(self.department,
                                               self.transfer_amount)
@@ -384,22 +346,9 @@ class ApplicationUI:
     def create_finance_tab(self, tab):
         """This builds the UI elements for the table tab."""
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-        # All buttons
-=======
-=======
->>>>>>> Stashed changes
-<<<<<<< HEAD
+        # zeigt an Abteilungen
         ttk.Button(tab, text='Alle Abteilungen anzeigen',
                 command=self.populate_departments).pack(pady=5)
-=======
-        # All buttons
->>>>>>> 6eca7aaf72c0a07b4eb80a6a657a35ab9c95a731
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
         ttk.Button(tab, text='Kontostand der Abteilung anzeigen',
                 command=self.show_department_balance).pack(pady=5)
         ttk.Button(tab, text='Geld einzahlen in das Abteilungskonto',
