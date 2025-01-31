@@ -144,18 +144,10 @@ class ApplicationUI:
         self.department_balance_listbox.delete(0, tk.END)
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
-        # saves as variable the department that was clicked on
-        department_selected = self.department_listbox.curselection()
         try:
-            # converts it to text
-            department_txt = ''.join(map(str, department_selected))
-            # gets the name of the department from the listbox
-            department_int = int(department_txt)
-            for i in department_selected:
-                department = self.department_listbox.get(i)
-            # gives out the balance of the department
+            self.department = self.department_combobox.get()
             cursor.execute("""SELECT balance FROM departments
-                                WHERE name = (?)""", (department,))
+                                WHERE name = (?)""", (self.department,))
             department_balance = cursor.fetchall()
             # populates the balance_tab with balance of the department
             for balance in department_balance:
@@ -165,31 +157,17 @@ class ApplicationUI:
             return
 
 
-    def choose_department(self):
-        """This function is for the button which shows the balance of the account
-        of a particular department"""
-        import sqlite3
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        # saves as variable the department that was clicked on
-        department_selected = self.department_listbox.curselection()
+    def handle_choose(self):
         try:
-            # converts it to text
-            department_txt = ''.join(map(str, department_selected))
-            # gets the name of the department from the listbox
-            department_int = int(department_txt)
-            for i in department_selected:
-                department = self.department_listbox.get(i)
-            # gives out the balance of the department
-            cursor.execute("""SELECT balance FROM departments
-                                WHERE name = (?)""", (department,))
-            department_balance = cursor.fetchall()
-            # populates the balance_tab with balance of the department
-            for balance in department_balance:
-                self.department_balance_listbox.insert(tk.END, f"{balance[0]}€")
+            self.deposit_amount = self.amount_entry.get()
+            self.fin.add_balance(self.department, self.deposit_amount)
+            messagebox.showinfo("Info",
+                                f"Sie haben erfolgreich {self.deposit_amount} hinzugefügt.")
+            self.deposit_window.destroy()
         except Exception as e:
-            messagebox.showerror("Info", "Bitte wählen sie erst eine Abteilung aus.")
+            messagebox.showerror("Info", "Fehler bei Deposit Funktion.")
             return
+
 
 
     def deposit_money(self):
@@ -208,15 +186,16 @@ class ApplicationUI:
             # sets the geometry
             self.center_window(self.deposit_window, 600, 200)
             # text of the window
-            tk.Label(self.deposit_window, text=f"Geben sie ein wie viel sie in die Abteilung {self.department} einzahlen wollen").pack()
+            tk.Label(self.deposit_window, text=f"Geben sie ein wie viel sie"
+                f"in die Abteilung {self.department} einzahlen wollen").pack()
             self.amount_entry = ttk.Entry(self.deposit_window)
             self.amount_entry.pack(pady=5)
             deposit_button = ttk.Button(self.deposit_window, text="Geld einzahlen",
                                      command=self.handle_deposit)
             deposit_button.pack(pady=10)
         except Exception as e:
-            messagebox.showerror("Info", "Bitte geben sie einen \
-                                 gültigen Betrag ein.")
+            messagebox.showerror("Info", "Bitte geben sie einen"
+                                 "gültigen Betrag ein.")
             return
 
 
@@ -271,7 +250,6 @@ class ApplicationUI:
             return
 
 
-    def transfer_money(self):
     def transfer_money(self):
         """This function transfers money from one department to another"""
         # importing sqlite and setting it up
@@ -347,10 +325,16 @@ class ApplicationUI:
         ttk.Button(tab, text='Geld überweisen vom Abteilungskonto',
                 command=self.transfer_money).pack(pady=5)
 
-        # box with departments
-        ttk.Label(tab, text='Abteilungen:').pack(pady=5)
-        self.department_listbox = tk.Listbox(tab, height=10, width=50)
-        self.department_listbox.pack(pady=10)
+        # importing sqlite
+        import sqlite3
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        # creates a dropdown with all the department names
+        cursor.execute("""SELECT name FROM departments""")
+        department_list = cursor.fetchall()
+        ttk.Label(tab, text="Abteilungen:").pack(pady=5)
+        self.department_combobox = ttk.Combobox(tab, values=department_list)
+        self.department_combobox.pack(pady=5)
 
         # box with department money
         ttk.Label(tab, text='Kontostand der Abteilung:').pack(pady=5)
