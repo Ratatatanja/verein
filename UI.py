@@ -10,6 +10,7 @@ from department_management import DepartmentManager
 from finance import Finance
 
 class ApplicationUI:
+    """This is the class of the App"""
     def __init__(self, db_name="app_data.db"):
         self.db_name = db_name
         self.db_manager = DatabaseManager()
@@ -71,8 +72,9 @@ class ApplicationUI:
 
 
     def create_admin_settings_tab(self, parent_tab):
-        """This creates the Tab Admin-Einstellungen."""
+        """This creates the Tab User Management."""
         def handle_add_user():
+            """This handles the process of adding a user."""
             username = username_entry.get()
             password = password_entry.get()
             role = role_combobox.get()
@@ -235,7 +237,6 @@ class ApplicationUI:
                                  "gültigen Betrag ein.")
             return
 
-
     def handle_withdraw(self):
         """This function triggers when clicking on the button: "Geld abheben"
         inside the withdraw_money() function.
@@ -243,6 +244,11 @@ class ApplicationUI:
         finance function called reduce_money()."""
         try:
             self.withdraw_amount = self.withdraw_entry.get()
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
             if self.withdraw_amount < 0:
                 messagebox.showerror("Info", "Bitte geben sie einen nicht negativen Betrag ein.")
                 return
@@ -256,7 +262,20 @@ class ApplicationUI:
         except Exception as e:
             messagebox.showerror("Info", "Dieser Betrag ist zu hoch. Geben sie kleineren Betrag ein.")
             return
+>>>>>>> 6eca7aaf72c0a07b4eb80a6a657a35ab9c95a731
 
+            # Checks if withdraw was a success
+            success = self.fin.reduce_balance(self.department,
+                                              self.withdraw_amount)
+            if success:
+                messagebox.showinfo("Info",
+                                    f"Sie haben erfolgreich {self.withdraw_amount} abgehoben.")
+                self.withdraw_window.destroy()
+            else:
+                messagebox.showerror("Info",
+                                     "Abhebung fehlgeschlagen. Nicht genug Guthaben!")
+        except Exception as e:
+            messagebox.showerror("Info", "Fehler bei der Abhebung.")
 
     def transfer_money(self):
         """This function transfers money from one department to another"""
@@ -296,12 +315,16 @@ class ApplicationUI:
             messagebox.showerror("Info", "Diese Operation wurde abgebrochen")
             return
 
-
     def handle_transfer(self):
-        """This function transfers money from one department to another"""
+        """Sends money from one departmenmt to another."""
         try:
-            # taking the amount of money from the entry box
             self.transfer_amount = self.transfer_entry.get()
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+            self.end_department = self.department_combobox.get()
+=======
+>>>>>>> Stashed changes
             if self.withdraw_amount < 0:
                 messagebox.showerror("Info", "Bitte geben sie einen nicht negativen Betrag ein.")
                 return
@@ -324,12 +347,42 @@ class ApplicationUI:
         except Exception as e:
             messagebox.showerror("Info", "Bitte geben sie eine Zahl ein als Betrag.")
             return
+>>>>>>> 6eca7aaf72c0a07b4eb80a6a657a35ab9c95a731
 
+            if self.end_department == self.department:
+                messagebox.showerror("Fehler",
+                                     "Sie können kein Geld an dieselbe Abteilung überweisen!")
+                return
+
+            success = self.fin.reduce_balance(self.department,
+                                              self.transfer_amount)
+            if not success:
+                messagebox.showerror("Fehler",
+                                     "Nicht genug Guthaben für die Überweisung!")
+                return
+
+            self.fin.add_balance(self.end_department, self.transfer_amount)
+            messagebox.showinfo("Erfolg",
+                                f"Sie haben erfolgreich {self.transfer_amount} überwiesen \
+                                von {self.department} nach {self.end_department}.")
+            self.transfer_window.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Fehler", "Überweisung fehlgeschlagen.")
 
     def create_finance_tab(self, tab):
         """This builds the UI elements for the table tab."""
 
+<<<<<<< Updated upstream
         # All buttons
+=======
+<<<<<<< HEAD
+        ttk.Button(tab, text='Alle Abteilungen anzeigen',
+                command=self.populate_departments).pack(pady=5)
+=======
+        # All buttons
+>>>>>>> 6eca7aaf72c0a07b4eb80a6a657a35ab9c95a731
+>>>>>>> Stashed changes
         ttk.Button(tab, text='Kontostand der Abteilung anzeigen',
                 command=self.show_department_balance).pack(pady=5)
         ttk.Button(tab, text='Geld einzahlen in das Abteilungskonto',
@@ -356,7 +409,7 @@ class ApplicationUI:
         self.department_balance_listbox.pack(pady=10)
 
     def create_transaction_history_tab(self, tab):
-        """Erstellt die UI für die Transaktionshistorie ohne Datum/Zeit."""
+        """This creates the UI of the Transactin history tab."""
         ttk.Label(tab, text="Transaktionshistorie", font=("Arial", 14)).pack(
             pady=10)
 
@@ -384,7 +437,7 @@ class ApplicationUI:
         self.load_transaction_history()
 
     def load_transaction_history(self):
-        """Lädt die Transaktionshistorie ohne Datum/Zeit."""
+        """This loads the transactionhistory."""
         records = self.fin.get_transaction_history()
 
         for row in self.transaction_tree.get_children():
@@ -395,7 +448,7 @@ class ApplicationUI:
                                          values=record)  # Kein timestamp mehr
 
     def export_to_csv(self):
-        """Exportiert die Transaktionshistorie als CSV-Datei."""
+        """This exports the Transactionhistory as csv."""
         import csv
         filename = "transaction_history.csv"
         records = self.fin.get_transaction_history()
@@ -438,7 +491,7 @@ class ApplicationUI:
 
     # In der ApplicationUI-Klasse (UI.py)
     def get_accessible_tabs(self, role):
-        """Gibt die zugänglichen Tabs basierend auf der Benutzerrolle zurück."""
+        """This gives back the tabs based on user role."""
         if role == "Admin":
             return ["Finanzen", "Transaktionshistorie",
                     "Abteilungen hinzufügen", "User Management"]

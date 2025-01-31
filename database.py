@@ -6,6 +6,7 @@ __author__ = "5158850, Novgorodtseva, 8392145, Reich"
 import sqlite3
 
 class DatabaseManager:
+    """This is the class of the database."""
     def __init__(self, db_name="app_data.db"):
         self.db_name = db_name
 
@@ -26,14 +27,14 @@ class DatabaseManager:
             )
         """)
 
-        # Sicherstellen, dass die Rolle-Spalte existiert
+        # make sure that user-column exists.
         cursor.execute("PRAGMA table_info(users)")
         columns = [info[1] for info in cursor.fetchall()]
         if "role" not in columns:
             cursor.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL"
                            " DEFAULT 'Finanz-Viewer'")
 
-        # Standard-Benutzer hinzufügen
+        # default user
         cursor.execute("INSERT OR IGNORE INTO users "
                        "(username, password, role) VALUES (?, ?, ?)",
                        ("admin", "admin", "Admin"))
