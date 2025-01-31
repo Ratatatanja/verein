@@ -2,12 +2,15 @@
 
 __author__ = "5158850, Novgorodtseva, 8392145, Reich"
 
+import sqlite3
+import csv
 import tkinter as tk
 from tkinter import ttk, messagebox
 from user_management import UserManager
 from database import DatabaseManager
 from department_management import DepartmentManager
-from finance import Finance
+from finance_test import Finance
+import datetime
 
 class ApplicationUI:
     def __init__(self, db_name="app_data.db"):
@@ -165,33 +168,6 @@ class ApplicationUI:
             return
 
 
-    def choose_department(self):
-        """This function is for the button which shows the balance of the account
-        of a particular department"""
-        import sqlite3
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
-        # saves as variable the department that was clicked on
-        department_selected = self.department_listbox.curselection()
-        try:
-            # converts it to text
-            department_txt = ''.join(map(str, department_selected))
-            # gets the name of the department from the listbox
-            department_int = int(department_txt)
-            for i in department_selected:
-                department = self.department_listbox.get(i)
-            # gives out the balance of the department
-            cursor.execute("""SELECT balance FROM departments
-                                WHERE name = (?)""", (department,))
-            department_balance = cursor.fetchall()
-            # populates the balance_tab with balance of the department
-            for balance in department_balance:
-                self.department_balance_listbox.insert(tk.END, f"{balance[0]}€")
-        except Exception as e:
-            messagebox.showerror("Info", "Bitte wählen sie erst eine Abteilung aus.")
-            return
-
-
     def deposit_money(self):
         """This function deposits money for the account"""
         # saves as variable the department that was clicked on
@@ -272,12 +248,7 @@ class ApplicationUI:
 
 
     def transfer_money(self):
-    def transfer_money(self):
         """This function transfers money from one department to another"""
-        # importing sqlite and setting it up
-        import sqlite3
-        conn = sqlite3.connect(self.db_name)
-        cursor = conn.cursor()
         # saves as variable the department that was clicked on
         department_selected = self.department_listbox.curselection()
         try:
@@ -285,48 +256,31 @@ class ApplicationUI:
             for i in department_selected:
                 self.department = self.department_listbox.get(i)
                 print(self.department)
-            self.transfer_window = tk.Toplevel()
+            self.withdraw_window = tk.Toplevel()
             # window title
-            self.transfer_window.title("Eingabe")
+            self.withdraw_window.title("Eingabe")
             # sets the geometry
-            self.center_window(self.transfer_window, 600, 200)
-            cursor.execute("""SELECT name FROM departments""")
-            department_list = cursor.fetchall()
-            ttk.Label(self.transfer_window, text="Abteilungen:").pack(pady=5)
-            self.department_combobox = ttk.Combobox(self.transfer_window, values=department_list)
-            self.department_combobox.pack(pady=5)
-
+            self.center_window(self.withdraw_window, 600, 200)
             # text of the window
-            tk.Label(self.transfer_window, text=f"Geben sie ein wieviel Geld Sie von der Abteilung {self.department} zu der anderen Abteilung überweisen wollen").pack()
-            self.transfer_entry = ttk.Entry(self.transfer_window)
-            self.transfer_entry.pack(pady=5)
-            transfer_button = ttk.Button(self.transfer_window, text="Geld überweisen",
-                                     command=self.handle_transfer)
-            transfer_button.pack(pady=10)
+            tk.Label(self.withdraw_window, text=f"Geben sie ein wieviel Geld Sie von der Abteilung {self.department} abheben wollen").pack()
+            self.withdraw_entry = ttk.Entry(self.withdraw_window)
+            self.withdraw_entry.pack(pady=5)
+            withdraw_button = ttk.Button(self.withdraw_window, text="Geld abheben",
+                                     command=self.handle_withdraw)
+            withdraw_button.pack(pady=10)
         except Exception as e:
             messagebox.showerror("Info", "Bitte geben sie einen \
                                  gültigen Betrag ein.")
             return
 
 
-    def handle_transfer(self):
-        """This function transfers money from one department to another"""
+    def handle_withdraw(self):
         try:
-            # taking the amount of money from the entry box
-            self.transfer_amount = self.transfer_entry.get()
-            # the department to which the money is transferred to
-            self.end_department = self.department_combobox.get()
-            if self.end_department == self.department:
-                messagebox.showerror("Info", "Bitte wählen sie eine \
-                                     Abteilung aus, welche nicht gleich zu \
-                                     der Originalabteilung ist.")
-                return
-            self.fin.reduce_balance(self.department, self.transfer_amount)
-            self.fin.add_balance(self.end_department, self.transfer_amount)
+            self.withdraw_amount = self.withdraw_entry.get()
+            self.fin.reduce_balance(self.department, self.withdraw_amount)
             messagebox.showinfo("Info",
-                                f"Sie haben erfolgreich {self.transfer_amount} überwiesen\
-                                    von {self.department} nach {self.end_department}.")
-            self.transfer_window.destroy()
+                                f"Sie haben erfolgreich {self.withdraw_amount} abgehoben.")
+            self.withdraw_window.destroy()
         except Exception as e:
             messagebox.showerror("Info", "Dieser Betrag ist zu hoch. Geben sie kleineren Betrag ein.")
             return
@@ -344,7 +298,7 @@ class ApplicationUI:
                 command=self.deposit_money).pack(pady=5)
         ttk.Button(tab, text='Geld abheben vom Abteilungskonto',
                 command=self.withdraw_money).pack(pady=5)
-        ttk.Button(tab, text='Geld überweisen vom Abteilungskonto',
+        ttk.Button(tab, text='Geld abheben vom Abteilungskonto',
                 command=self.transfer_money).pack(pady=5)
 
         # box with departments
@@ -357,6 +311,115 @@ class ApplicationUI:
         self.department_balance_listbox = tk.Listbox(tab, height=2, width=50)
         self.department_balance_listbox.pack(pady=10)
 
+
+
+    def create_transaction_history_tab(self, tab):
+        """Erstellt die UI für die Transaktionshistorie."""
+        ttk.Label(tab, text="Transaktionshistorie",
+                    font=("Arial", 14)).pack(pady=10)
+
+        self.transaction_tree = ttk.Treeview(tab, columns=(
+        "department", "operation", "amount", "balance", "timestamp",
+        "username", "role"), show="headings")
+        self.transaction_tree.heading("department", text="Abteilung")
+        self.transaction_tree.heading("operation", text="Operation")
+        self.transaction_tree.heading("amount", text="Betrag")
+        self.transaction_tree.heading("balance", text="Kontostand")
+        self.transaction_tree.heading("timestamp", text="Datum/Zeit")
+        self.transaction_tree.heading("username", text="Benutzer")
+        self.transaction_tree.heading("role", text="Rolle")
+
+        self.transaction_tree.pack(pady=10, fill="both", expand=True)
+        ttk.Button(tab, text="Historie aktualisieren",
+                    command=self.load_transaction_history).pack(pady=5)
+
+        # Export-Button nur für Admins anzeigen
+        if self.user_role == "Admin":
+            ttk.Button(tab, text="CSV exportieren",
+                        command=self.export_to_csv).pack(pady=5)
+
+        self.load_transaction_history()
+
+    def load_transaction_history(self):
+        """Lädt die Transaktionshistorie aus der Datenbank."""
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM history")
+        records = cursor.fetchall()
+        conn.close()
+
+        # Alte Einträge löschen
+        for row in self.transaction_tree.get_children():
+            self.transaction_tree.delete(row)
+
+        # Neue Einträge hinzufügen
+        for record in records:
+            self.transaction_tree.insert("", "end", values=record)
+
+    def export_to_csv(self):
+        """Exportiert die Transaktionshistorie als CSV-Datei."""
+        filename = "transaction_history.csv"
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM history")
+        records = cursor.fetchall()
+        conn.close()
+
+        with open(filename, "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(
+                ["Abteilung", "Operation", "Betrag", "Kontostand",
+                 "Datum/Zeit", "Benutzer", "Rolle"])
+            writer.writerows(records)
+
+        messagebox.showinfo("Erfolg",
+                            f"Transaktionshistorie wurde als {filename} gespeichert.")
+
+        """def handle_login(self, username, password):
+            #Verarbeitet den Login und speichert die Benutzerrolle.
+            role = self.user_manager.verify_login(username, password)
+            if role:
+                self.user_role = role  # Speichert die Benutzerrolle für spätere Checks
+                messagebox.showinfo("Erfolg", "Login erfolgreich!")
+                self.open_main_window(role)
+            else:
+                messagebox.showerror("Fehler",
+                                     "Ungültiger Benutzername oder Passwort.")
+
+        def open_main_window(self, role):
+            #Erstellt und zeigt das Hauptfenster an.
+            main_window = tk.Tk()
+            main_window.title("Vereinskassensystem")
+
+            tab_control = ttk.Notebook(main_window)
+            accessible_tabs = self.get_accessible_tabs(role)
+
+            for tab_name in accessible_tabs:
+                tab = ttk.Frame(tab_control)
+                tab_control.add(tab, text=tab_name)
+
+                if tab_name == "Transaktionshistorie":
+                    self.create_transaction_history_tab(tab)
+                elif tab_name == "Finanzen":
+                    self.create_finance_tab(tab)
+                elif tab_name == "Abteilungen hinzufügen":
+                    self.add_department_tab(tab)
+                elif tab_name == "User Management":
+                    self.create_admin_settings_tab(tab)
+
+            tab_control.pack(expand=1, fill="both")
+            main_window.mainloop()
+
+        def get_accessible_tabs(self, role):
+            #Gibt die zugänglichen Tabs basierend auf der Benutzerrolle zurück.
+            if role == "Admin":
+                return ["Finanzen", "Transaktionshistorie",
+                        "Abteilungen hinzufügen", "User Management"]
+            elif role == "Kassenwart":
+                return ["Finanzen", "Transaktionshistorie"]
+            elif role == "Finanz-Viewer":
+                return ["Finanzen-Ansicht", "Transaktionshistorie-Ansicht"]
+            return []"""
 
     def open_main_window(self, role):
         """This creates and shows the main window."""
@@ -375,12 +438,14 @@ class ApplicationUI:
 
             if tab_name == "Abteilungen hinzufügen" and role == "Admin":
                 self.add_department_tab(tab)
-            if role == "Admin" and tab_name == "User Management":
+            if tab_name == "User Management" and role == "Admin":
                 self.create_admin_settings_tab(tab)
             # populate_finance_tab Aufruf
             if tab_name == "Finanzen":
                 if role == "Admin" or "Kassenwart":
                     self.create_finance_tab(tab)
+            if tab_name == "Transaktionshistorie":
+                self.create_transaction_history_tab(tab)
 
         tab_control.pack(expand=1, fill="both")
         main_window.mainloop()
@@ -412,6 +477,7 @@ class ApplicationUI:
                 messagebox.showerror("Fehler",
                                      "Ungültiger Benutzername"
                                      " oder Passwort.")
+
 
         login_window = tk.Tk()
         login_window.title("Login")
