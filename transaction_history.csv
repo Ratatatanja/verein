@@ -7,9 +7,10 @@ Abteilung,Operation,Betrag,Kontostand,Datum/Zeit
 6,Disco,deposit,60.0,2000.0
 7,fußball,deposit,100.0,700.0
 8,wettessen,withdraw,500.0,500.0
-9,Disco,deposit,5.0,2005.0
-10,Disco,withdraw,5.0,2000.0
-11,Disco,deposit,5.0,2005.0
-12,Disco,deposit,5.0,2010.0
-13,Disco,withdraw,10.0,2000.0
-14,Disco,deposit,87867.0,89867.0
+9,wettessen,withdraw,10.0,490.0
+10,Disco,deposit,10.0,2010.0
+11,Spazieren,deposit,10.0,60.0
+12,Spazieren,withdraw,20.0,40.0
+13,Spazieren,withdraw,40.0,0.0
+14,wettessen,withdraw,100.0,390.0
+15,Spazieren,deposit,100.0,100.0
