@@ -245,6 +245,11 @@ class ApplicationUI:
         try:
             self.withdraw_amount = self.withdraw_entry.get()
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
 =======
 <<<<<<< HEAD
 =======
@@ -320,6 +325,12 @@ class ApplicationUI:
         try:
             self.transfer_amount = self.transfer_entry.get()
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+            self.end_department = self.department_combobox.get()
+=======
+>>>>>>> Stashed changes
 =======
 <<<<<<< HEAD
             self.end_department = self.department_combobox.get()
@@ -374,14 +385,20 @@ class ApplicationUI:
         """This builds the UI elements for the table tab."""
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         # All buttons
 =======
+=======
+>>>>>>> Stashed changes
 <<<<<<< HEAD
         ttk.Button(tab, text='Alle Abteilungen anzeigen',
                 command=self.populate_departments).pack(pady=5)
 =======
         # All buttons
 >>>>>>> 6eca7aaf72c0a07b4eb80a6a657a35ab9c95a731
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         ttk.Button(tab, text='Kontostand der Abteilung anzeigen',
                 command=self.show_department_balance).pack(pady=5)
