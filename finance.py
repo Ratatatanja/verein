@@ -32,27 +32,41 @@ class Finance:
         except sqlite3.IntegrityError:
             return False
 
-
     def reduce_balance(self, department_name, amount):
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
-            cursor.execute("""SELECT balance FROM departments
-                                WHERE name = (?)""", (department_name,))
-            department_balance = cursor.fetchall()
-            print(department_balance)
-            new_balance = department_balance[0][0]-int(amount)
-            # if not enough money, money can't be withdrawn
-            if new_balance < 0:
+
+            # Aktuelles Guthaben abrufen
+            cursor.execute("SELECT balance FROM departments WHERE name = ?",
+                           (department_name,))
+            department_balance = cursor.fetchone()
+
+            if department_balance is None:
+                messagebox.showerror("Fehler",
+                                     f"Abteilung '{department_name}' nicht gefunden.")
                 return False
-            cursor.execute("""UPDATE departments
-            SET balance = (?)
-            WHERE name = (?)""", (new_balance, department_name))
+
+            current_balance = department_balance[0]
+            amount = float(amount)
+
+            # Checks if there is enough money
+            if current_balance - amount < 0:
+                messagebox.showerror("Fehler",
+                                     f"Nicht genug Guthaben auf dem Konto von '{department_name}'!")
+                return False
+
+            # Guthaben aktualisieren
+            new_balance = current_balance - amount
+            cursor.execute("UPDATE departments SET balance = ? WHERE name = ?",
+                           (new_balance, department_name))
             conn.commit()
             conn.close()
-            # records the transaction
-            self.record(department_name, type="withdraw", amount=amount, new_balance=new_balance)
+
+            # Transaktion aufzeichnen
+            self.record(department_name, "withdraw", amount, new_balance)
             return True
+
         except sqlite3.IntegrityError:
             return False
 
@@ -93,7 +107,7 @@ class Finance:
             return False
 
     def get_transaction_history(self):
-        """Gibt die gesamte Transaktionshistorie zurück (ohne Datum)."""
+        """Gives back the whole transactionhistory."""
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         cursor.execute(
