@@ -359,7 +359,7 @@ class ApplicationUI:
         messagebox.showinfo("Erfolg",
                             f"Transaktionshistorie wurde als {filename} gespeichert.")
 
-    # In der ApplicationUI-Klasse (UI.py)
+
     def open_main_window(self, role):
         """This creates and shows the main window."""
         main_window = tk.Tk()

@@ -17,6 +17,7 @@ class ApplicationUI:
         self.user_manager = UserManager(self.db_manager)
         self.fin = Finance()
         self.db_manager.setup_database()
+        self.user_role = None
 
     def center_window(self, window, width, height):
         """This centers all windows on screen."""
@@ -341,9 +342,64 @@ class ApplicationUI:
         self.department_balance_listbox = tk.Listbox(tab, height=2, width=50)
         self.department_balance_listbox.pack(pady=10)
 
+    def create_transaction_history_tab(self, tab):
+        """Erstellt die UI für die Transaktionshistorie ohne Datum/Zeit."""
+        ttk.Label(tab, text="Transaktionshistorie", font=("Arial", 14)).pack(
+            pady=10)
+
+        self.transaction_tree = ttk.Treeview(tab, columns=(
+            "id", "department", "operation", "amount", "balance"),
+                                             show="headings")
+
+        self.transaction_tree.heading("id", text="#")
+        self.transaction_tree.column("id", width=40, anchor="center")
+
+        self.transaction_tree.heading("department", text="Abteilung")
+        self.transaction_tree.heading("operation", text="Operation")
+        self.transaction_tree.heading("amount", text="Betrag")
+        self.transaction_tree.heading("balance", text="Kontostand")
+
+        self.transaction_tree.pack(pady=10, fill="both", expand=True)
+
+        ttk.Button(tab, text="Historie aktualisieren",
+                   command=self.load_transaction_history).pack(pady=5)
+
+        if self.user_role == "Admin":
+            ttk.Button(tab, text="CSV exportieren",
+                       command=self.export_to_csv).pack(pady=5)
+
+        self.load_transaction_history()
+
+    def load_transaction_history(self):
+        """Lädt die Transaktionshistorie ohne Datum/Zeit."""
+        records = self.fin.get_transaction_history()
+
+        for row in self.transaction_tree.get_children():
+            self.transaction_tree.delete(row)
+
+        for record in records:
+            self.transaction_tree.insert("", "end",
+                                         values=record)  # Kein timestamp mehr
+
+    def export_to_csv(self):
+        """Exportiert die Transaktionshistorie als CSV-Datei."""
+        import csv
+        filename = "transaction_history.csv"
+        records = self.fin.get_transaction_history()
+
+        with open(filename, "w", newline="", encoding="utf-8") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Abteilung", "Operation", "Betrag", "Kontostand",
+                             "Datum/Zeit"])
+            writer.writerows(records)
+
+        messagebox.showinfo("Erfolg",
+                            f"Transaktionshistorie wurde als {filename} gespeichert.")
 
     def open_main_window(self, role):
         """This creates and shows the main window."""
+        self.user_role = role
+
         main_window = tk.Tk()
         main_window.title("Vereinskassensystem")
         self.center_window(main_window, 1050, 800)
@@ -354,23 +410,22 @@ class ApplicationUI:
         for tab_name in accessible_tabs:
             tab = ttk.Frame(tab_control)
             tab_control.add(tab, text=tab_name)
-            ttk.Label(tab, text=f"Dies ist der Bereich: {tab_name}",
-                      font=("Arial", 14)).pack(pady=20)
 
             if tab_name == "Abteilungen hinzufügen" and role == "Admin":
                 self.add_department_tab(tab)
-            if role == "Admin" and tab_name == "User Management":
+            elif tab_name == "User Management" and role == "Admin":
                 self.create_admin_settings_tab(tab)
-            # populate_finance_tab Aufruf
-            if tab_name == "Finanzen":
-                if role == "Admin" or "Kassenwart":
-                    self.create_finance_tab(tab)
+            elif tab_name == "Finanzen":
+                self.create_finance_tab(tab)
+            elif tab_name == "Transaktionshistorie":
+                self.create_transaction_history_tab(tab)
 
         tab_control.pack(expand=1, fill="both")
         main_window.mainloop()
 
+    # In der ApplicationUI-Klasse (UI.py)
     def get_accessible_tabs(self, role):
-        """Gives back the accessible tabs based on user role."""
+        """Gibt die zugänglichen Tabs basierend auf der Benutzerrolle zurück."""
         if role == "Admin":
             return ["Finanzen", "Transaktionshistorie",
                     "Abteilungen hinzufügen", "User Management"]

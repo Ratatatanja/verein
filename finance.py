@@ -79,15 +79,26 @@ class Finance:
                 department TEXT NOT NULL,
                 operation TEXT NOT NULL,
                 amount REAL NOT NULL,
-                balance REAL NOT NULL)
-                """)
-            # records what had been done in this department
+                balance REAL NOT NULL
+            )
+            """)
             cursor.execute("""INSERT INTO history 
-                           (department, operation, amount, balance)
-                           VALUES (?, ?, ?, ?)""",
+                               (department, operation, amount, balance)
+                               VALUES (?, ?, ?, ?)""",
                            (department_name, type, amount, new_balance))
             conn.commit()
             conn.close()
             return True
         except sqlite3.IntegrityError:
             return False
+
+    def get_transaction_history(self):
+        """Gibt die gesamte Transaktionshistorie zurück (ohne Datum)."""
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, department, operation, amount, balance FROM history")  # Ohne timestamp
+        records = cursor.fetchall()
+        conn.close()
+        return records
+    #
