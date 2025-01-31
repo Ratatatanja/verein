@@ -70,7 +70,7 @@ Tanja
 Jegor
 - Dokumentation
 - bei auswahl (wenn reingeschrieben) Fehlermeldung +
-- negative zahlen bei Abteilung
+- negative zahlen bei Abteilung *
 
 done:
 Jegor
@@ -82,3 +82,5 @@ Jegor
 - Button für speichern +
 - anzeigen von Abteilungen und deren Kontostand +
 - unnötige Tabs löschen +
+- bei auswahl (wenn reingeschrieben) Fehlermeldung +
+- negative zahlen bei Abteilung *
