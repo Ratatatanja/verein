@@ -165,6 +165,33 @@ class ApplicationUI:
             return
 
 
+    def choose_department(self):
+        """This function is for the button which shows the balance of the account
+        of a particular department"""
+        import sqlite3
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
+        # saves as variable the department that was clicked on
+        department_selected = self.department_listbox.curselection()
+        try:
+            # converts it to text
+            department_txt = ''.join(map(str, department_selected))
+            # gets the name of the department from the listbox
+            department_int = int(department_txt)
+            for i in department_selected:
+                department = self.department_listbox.get(i)
+            # gives out the balance of the department
+            cursor.execute("""SELECT balance FROM departments
+                                WHERE name = (?)""", (department,))
+            department_balance = cursor.fetchall()
+            # populates the balance_tab with balance of the department
+            for balance in department_balance:
+                self.department_balance_listbox.insert(tk.END, f"{balance[0]}€")
+        except Exception as e:
+            messagebox.showerror("Info", "Bitte wählen sie erst eine Abteilung aus.")
+            return
+
+
     def deposit_money(self):
         """This function deposits money for the account"""
         # saves as variable the department that was clicked on
@@ -244,8 +271,12 @@ class ApplicationUI:
             return
 
 
-    def transfer_money(self)
+    def transfer_money(self):
         """This function transfers money from one department to another"""
+        # importing sqlite and setting it up
+        import sqlite3
+        conn = sqlite3.connect(self.db_name)
+        cursor = conn.cursor()
         # saves as variable the department that was clicked on
         department_selected = self.department_listbox.curselection()
         try:
@@ -253,31 +284,48 @@ class ApplicationUI:
             for i in department_selected:
                 self.department = self.department_listbox.get(i)
                 print(self.department)
-            self.withdraw_window = tk.Toplevel()
+            self.transfer_window = tk.Toplevel()
             # window title
-            self.withdraw_window.title("Eingabe")
+            self.transfer_window.title("Eingabe")
             # sets the geometry
-            self.center_window(self.withdraw_window, 600, 200)
+            self.center_window(self.transfer_window, 600, 200)
+            cursor.execute("""SELECT name FROM departments""")
+            department_list = cursor.fetchall()
+            ttk.Label(self.transfer_window, text="Abteilungen:").pack(pady=5)
+            self.department_combobox = ttk.Combobox(self.transfer_window, values=department_list)
+            self.department_combobox.pack(pady=5)
+
             # text of the window
-            tk.Label(self.withdraw_window, text=f"Geben sie ein wie viel Geld sie von der Abteilung {self.department} abheben wollen").pack()
-            self.withdraw_entry = ttk.Entry(self.withdraw_window)
-            self.withdraw_entry.pack(pady=5)
-            withdraw_button = ttk.Button(self.withdraw_window, text="Geld abheben",
-                                     command=self.handle_withdraw)
-            withdraw_button.pack(pady=10)
+            tk.Label(self.transfer_window, text=f"Geben sie ein wie viel Geld sie von der Abteilung {self.department} zu der anderen Abteilung überweisen wollen").pack()
+            self.transfer_entry = ttk.Entry(self.transfer_window)
+            self.transfer_entry.pack(pady=5)
+            transfer_button = ttk.Button(self.transfer_window, text="Geld überweisen",
+                                     command=self.handle_transfer)
+            transfer_button.pack(pady=10)
         except Exception as e:
             messagebox.showerror("Info", "Bitte geben sie einen \
                                  gültigen Betrag ein.")
             return
 
 
-    def handle_withdraw(self):
+    def handle_transfer(self):
+        """This function transfers money from one department to another"""
         try:
-            self.withdraw_amount = self.withdraw_entry.get()
-            self.fin.reduce_balance(self.department, self.withdraw_amount)
+            # taking the amount of money from the entry box
+            self.transfer_amount = self.transfer_entry.get()
+            # the department to which the money is transferred to
+            self.end_department = self.department_combobox.get()
+            if self.end_department == self.department:
+                messagebox.showerror("Info", "Bitte wählen sie eine \
+                                     Abteilung aus, welche nicht gleich zu \
+                                     der Originalabteilung ist.")
+                return
+            self.fin.reduce_balance(self.department, self.transfer_amount)
+            self.fin.add_balance(self.end_department, self.transfer_amount)
             messagebox.showinfo("Info",
-                                f"Sie haben erfolgreich {self.withdraw_amount} abgehoben.")
-            self.withdraw_window.destroy()
+                                f"Sie haben erfolgreich {self.transfer_amount} überwiesen\
+                                    von {self.department} nach {self.end_department}.")
+            self.transfer_window.destroy()
         except Exception as e:
             messagebox.showerror("Info", "Dieser Betrag ist zu hoch. Geben sie kleineren Betrag ein.")
             return
@@ -295,7 +343,7 @@ class ApplicationUI:
                 command=self.deposit_money).pack(pady=5)
         ttk.Button(tab, text='Geld abheben vom Abteilungskonto',
                 command=self.withdraw_money).pack(pady=5)
-        ttk.Button(tab, text='Geld abheben vom Abteilungskonto',
+        ttk.Button(tab, text='Geld überweisen vom Abteilungskonto',
                 command=self.transfer_money).pack(pady=5)
 
         # box with departments
