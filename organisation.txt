@@ -68,17 +68,19 @@ Tanja
 - hochladen
 
 Jegor
-# Finanzübersicht Tab
-- speichern als csv (Userdatei speichern als Beispiel) +
-- Button für speichern +
-- anzeigen von Abteilungen und deren Kontostand +
-- Dokumentation 
-- unnötige Tabs löschen +
-- bei auswahl (wenn reingeschrieben) Fehlermeldung
-- negative zahlen bei Abteilung
+- Dokumentation
+- bei auswahl (wenn reingeschrieben) Fehlermeldung +
+- negative zahlen bei Abteilung *
 
 done:
 Jegor
 1. Interface
 2. Password (Login)
 3. create_user
+# Finanzübersicht Tab
+- speichern als csv (Userdatei speichern als Beispiel) +
+- Button für speichern +
+- anzeigen von Abteilungen und deren Kontostand +
+- unnötige Tabs löschen +
+- bei auswahl (wenn reingeschrieben) Fehlermeldung +
+- negative zahlen bei Abteilung *
