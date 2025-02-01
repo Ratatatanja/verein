@@ -84,7 +84,6 @@ class DatabaseManager:
             return False
 
 
-
     def debug_database(self):
         """
         Gives back all users in the terminal (for debugging)."""

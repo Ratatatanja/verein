@@ -12,6 +12,7 @@ from finance import Finance
 class ApplicationUI:
     """This is the class of the App"""
     def __init__(self, db_name="app_data.db"):
+        """Initialises necessary variables and the Classes used."""
         self.db_name = db_name
         self.db_manager = DatabaseManager()
         self.department_manager = DepartmentManager(self.db_manager)
@@ -137,12 +138,15 @@ class ApplicationUI:
         import sqlite3
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
+        self.department_balance_listbox.delete(0, tk.END)
         try:
+            # pulls the department name from the selection in finance tab
             self.department = self.department_combobox.get()
             if self.department == "":
                 messagebox.showerror("Info", "Bitte wählen sie erst eine "
                                  "Abteilung aus.")
                 return
+            # pulls the balance of the account for this department
             cursor.execute("""SELECT balance FROM departments
                                 WHERE name = (?)""", (self.department,))
             department_balance = cursor.fetchall()
@@ -156,7 +160,6 @@ class ApplicationUI:
 
     def deposit_money(self):
         """This function deposits money for the account"""
-        # saves as variable the department that was clicked on
         try:
             # saves as variable the department that was chosen
             self.department = self.department_combobox.get()
@@ -172,9 +175,11 @@ class ApplicationUI:
             # text of the window
             tk.Label(self.deposit_window, text=f"Geben sie ein wie viel sie "
                 f"in die Abteilung {self.department} einzahlen wollen").pack()
+            # entry box for writing in the money amount you want to deposit
             self.amount_entry = ttk.Entry(self.deposit_window)
             self.amount_entry.pack(pady=5)
-            deposit_button = ttk.Button(self.deposit_window, text="Geld einzahlen",
+            deposit_button = ttk.Button(self.deposit_window, 
+                                        text="Geld einzahlen",
                                      command=self.handle_deposit)
             deposit_button.pack(pady=10)
         except Exception as e:
@@ -184,13 +189,15 @@ class ApplicationUI:
 
 
     def handle_deposit(self):
+        """This function triggers upon clicking deposit_button in the
+        withdraw_deposit() function. It handles the activation of the
+        reduce_balance() function."""
         try:
             self.deposit_amount = self.amount_entry.get()
             no_point_amount = self.deposit_amount.replace('.', '', 1)
-            print("no point",no_point_amount)
             if no_point_amount.isdigit() == False:
                 messagebox.showerror(
-                        "Fehler", "Der Betrag muss eine Zahl sein."
+                        "Fehler", "Der Betrag muss eine positive Zahl sein."
                         " Nachkommastellen sollen mit Punkt abgetrennt werden.")
                 return
             if float(self.deposit_amount) < 0:
@@ -221,7 +228,7 @@ class ApplicationUI:
             self.center_window(self.withdraw_window, 600, 200)
             # text of the window
             tk.Label(self.withdraw_window, text=f"Geben sie ein wie viel "
-                     "Geld sie von der Abteilung {self.department}"
+                     f"Geld sie von der Abteilung {self.department}"
                      " abheben wollen").pack()
             self.withdraw_entry = ttk.Entry(self.withdraw_window)
             self.withdraw_entry.pack(pady=5)
@@ -233,6 +240,7 @@ class ApplicationUI:
                                  "gültigen Betrag ein.")
             return
 
+
     def handle_withdraw(self):
         """This function triggers when clicking on the button: "Geld abheben"
         inside the withdraw_money() function.
@@ -241,10 +249,9 @@ class ApplicationUI:
         try:
             self.withdraw_amount = self.withdraw_entry.get()
             no_point_amount = self.withdraw_amount.replace('.', '', 1)
-            print("no point",no_point_amount)
             if no_point_amount.isdigit() == False:
                 messagebox.showerror(
-                        "Fehler", "Der Betrag muss eine Zahl sein."
+                        "Fehler", "Der Betrag muss eine positive Zahl sein."
                         " Nachkommastellen sollen mit Punkt abgetrennt werden.")
                 return
             if float(self.withdraw_amount) < 0:
@@ -271,6 +278,7 @@ class ApplicationUI:
         except Exception as e:
             messagebox.showerror("Info", "Fehler bei der Abhebung.")
 
+
     def transfer_money(self):
         """This function transfers money from one department to another"""
         # importing sqlite and setting it up
@@ -280,7 +288,6 @@ class ApplicationUI:
         try:
             # saves as variable the department that was chosen
             self.department = self.department_combobox.get()
-            print(self.department)
             if self.department == "":
                 messagebox.showerror("Info", "Bitte wählen sie erst eine "
                                  "Abteilung aus.")
@@ -294,14 +301,12 @@ class ApplicationUI:
             department_list = cursor.fetchall()
             ttk.Label(self.transfer_window, text="Wählen sie aus zu welcher "
                       "Abteilungen Sie das Geld überweisen wollen:").pack(pady=5)
-            self.department_combobox = ttk.Combobox(self.transfer_window, state="readonly",
+            self.end_department_combobox = ttk.Combobox(self.transfer_window, state="readonly",
                                                     values=department_list)
-            self.department_combobox.pack(pady=5)
+            self.end_department_combobox.pack(pady=5)
 
             # text of the window
-            tk.Label(self.transfer_window, text="Geben sie ein wieviel Geld Sie von "
-                     f"der Abteilung {self.department} zu einer anderen Abteilung"
-                      " überweisen wollen").pack()
+            tk.Label(self.transfer_window, text="Wie viel überweisen?").pack()
             self.transfer_entry = ttk.Entry(self.transfer_window)
             self.transfer_entry.pack(pady=5)
             transfer_button = ttk.Button(self.transfer_window, text="Geld überweisen",
@@ -311,6 +316,7 @@ class ApplicationUI:
             messagebox.showerror("Info", "Diese Operation wurde abgebrochen")
             return
 
+
     def handle_transfer(self):
         """Sends money from one departmenmt to another."""
         try:
@@ -318,14 +324,14 @@ class ApplicationUI:
             no_point_amount = self.transfer_amount.replace('.', '', 1)
             if no_point_amount.isdigit() == False:
                 messagebox.showerror(
-                        "Fehler", "Der Betrag muss eine Zahl sein."
+                        "Fehler", "Der Betrag muss eine positive Zahl sein."
                         " Nachkommastellen sollen mit Punkt abgetrennt werden.")
                 return
             if float(self.transfer_amount) < 0:
                 messagebox.showerror("Info", "Bitte geben sie einen nicht negativen Betrag ein.")
                 return
             # the department to which the money is transferred to
-            self.end_department = self.department_combobox.get()
+            self.end_department = self.end_department_combobox.get()
             if self.end_department == self.department:
                 messagebox.showerror("Info", "Bitte wählen sie eine "
                                      "Abteilung aus, welche nicht identisch "
@@ -337,26 +343,26 @@ class ApplicationUI:
                 return
             self.fin.add_balance(self.end_department, self.transfer_amount)
             messagebox.showinfo("Info",
-                                f"Sie haben erfolgreich {self.transfer_amount} überwiesen\
-                                    von {self.department} nach {self.end_department}.")
+                                f"Sie haben erfolgreich {self.transfer_amount} überwiesen "
+                                f"von {self.department} nach {self.end_department}.")
             self.transfer_window.destroy()
         except Exception as e:
-            messagebox.showerror("Info", "Bitte geben sie eine Zahl ein als Betrag.")
+            messagebox.showerror("Info", "Bitte geben sie eine Zahl ein als den Betrag.")
             return
 
 
     def create_finance_tab(self, tab):
         """This builds the UI elements for the table tab."""
-
         # alle Buttons
         ttk.Button(tab, text='Kontostand der Abteilung anzeigen',
                 command=self.show_department_balance).pack(pady=5)
-        ttk.Button(tab, text='Geld einzahlen in das Abteilungskonto',
-                command=self.deposit_money).pack(pady=5)
-        ttk.Button(tab, text='Geld abheben vom Abteilungskonto',
-                command=self.withdraw_money).pack(pady=5)
-        ttk.Button(tab, text='Geld überweisen vom Abteilungskonto',
-                command=self.transfer_money).pack(pady=5)
+        if self.user_role != "Finanz-Viewer":
+            ttk.Button(tab, text='Geld einzahlen in das Abteilungskonto',
+                    command=self.deposit_money).pack(pady=5)
+            ttk.Button(tab, text='Geld abheben vom Abteilungskonto',
+                    command=self.withdraw_money).pack(pady=5)
+            ttk.Button(tab, text='Geld überweisen vom Abteilungskonto',
+                    command=self.transfer_money).pack(pady=5)
 
         # importing sqlite
         import sqlite3
@@ -373,6 +379,7 @@ class ApplicationUI:
         ttk.Label(tab, text='Kontostand der Abteilung:').pack(pady=5)
         self.department_balance_listbox = tk.Listbox(tab, height=2, width=50)
         self.department_balance_listbox.pack(pady=10)
+
 
     def create_transaction_history_tab(self, tab):
         """This creates the UI of the Transactin history tab."""
@@ -402,6 +409,7 @@ class ApplicationUI:
 
         self.load_transaction_history()
 
+
     def load_transaction_history(self):
         """This loads the transactionhistory."""
         records = self.fin.get_transaction_history()
@@ -412,6 +420,7 @@ class ApplicationUI:
         for record in records:
             self.transaction_tree.insert("", "end",
                                          values=record)  # Kein timestamp mehr
+
 
     def export_to_csv(self):
         """This exports the Transactionhistory as csv."""
@@ -427,6 +436,7 @@ class ApplicationUI:
 
         messagebox.showinfo("Erfolg",
                             f"Transaktionshistorie wurde als {filename} gespeichert.")
+
 
     def open_main_window(self, role):
         """This creates and shows the main window."""
@@ -455,6 +465,7 @@ class ApplicationUI:
         tab_control.pack(expand=1, fill="both")
         main_window.mainloop()
 
+
     # In der ApplicationUI-Klasse (UI.py)
     def get_accessible_tabs(self, role):
         """This gives back the tabs based on user role."""
@@ -466,6 +477,7 @@ class ApplicationUI:
         elif role == "Finanz-Viewer":
             return ["Finanzen", "Transaktionshistorie"]
         return []
+
 
     def open_login_window(self):
         """Creates the login-window."""
@@ -501,6 +513,7 @@ class ApplicationUI:
         login_button.pack(pady=10)
 
         login_window.mainloop()
+
 
 # Main Execution
 if __name__ == "__main__":

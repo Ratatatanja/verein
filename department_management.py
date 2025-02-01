@@ -14,6 +14,7 @@ class DepartmentManager:
         manager object."""
         self.db_manager = db_manager
 
+
     def add_department(self, name, initial_balance):
         """Adds new department."""
         return self.db_manager.add_department(name, initial_balance)
@@ -27,6 +28,7 @@ class DepartmentManager:
         departments = cursor.fetchall()
         conn.close()
         return departments
+
 
     def update_department_balance(self, department_id, new_balance):
         """updates account balance of department."""

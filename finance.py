@@ -6,16 +6,18 @@ import sqlite3
 
 class Finance:
     def __init__(self, db_name="app_data.db"):
+        """Initialises the name of the data base."""
         self.db_name = db_name
 
     def add_balance(self, department_name, amount):
+        """Add money to existing balance of a department"""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
             cursor.execute("""SELECT balance FROM departments
-                                WHERE name = (?)""", (department_name,)) # brought back (,)
+                                WHERE name = (?)""", (department_name,))
             department_balance = cursor.fetchall()
-            new_balance = int(amount)+department_balance[0][0]
+            new_balance = round(float(amount)+department_balance[0][0],2)
             cursor.execute("""UPDATE departments
             SET balance = (?)
             WHERE name = (?)""", (new_balance, department_name))
@@ -23,12 +25,15 @@ class Finance:
             conn.close()
             # fetches the name of the department using the id
             # records the transaction
-            self.record(department_name, type="deposit", amount=amount, new_balance=new_balance)
+            self.record(department_name, type="deposit", amount=amount,
+                         new_balance=new_balance)
             return True
         except sqlite3.IntegrityError:
             return False
 
+
     def reduce_balance(self, department_name, amount):
+        """Reduces the amount of money in the account of a department."""
         try:
             conn = sqlite3.connect(self.db_name)
             cursor = conn.cursor()
@@ -53,7 +58,7 @@ class Finance:
                 return False
 
             # Guthaben aktualisieren
-            new_balance = current_balance - amount
+            new_balance = round(current_balance - amount,2)
             cursor.execute("UPDATE departments SET balance = ? WHERE name = ?",
                            (new_balance, department_name))
             conn.commit()
@@ -66,20 +71,9 @@ class Finance:
         except sqlite3.IntegrityError:
             return False
 
-    """
-    def get_department_name(self, department_id):
-        try:
-            conn = sqlite3.connect(self.db_name)
-            cursor = conn.cursor()
-            cursor.execute(" ""SELECT name FROM departments
-                                WHERE id = (?)" "", (department_id,))
-            department_name = cursor.fetchall()
-            return department_name
-        except sqlite3.IntegrityError:
-            return False
-    """
 
     def record(self, department_name, type, amount, new_balance):
+        """Saves the information on transactions in a history table."""
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         try:
@@ -102,8 +96,9 @@ class Finance:
         except sqlite3.IntegrityError:
             return False
 
+
     def get_transaction_history(self):
-        """Gives back the whole transactionhistory."""
+        """Gives back the whole transaction history."""
         conn = sqlite3.connect(self.db_name)
         cursor = conn.cursor()
         cursor.execute(
@@ -111,4 +106,3 @@ class Finance:
         records = cursor.fetchall()
         conn.close()
         return records
-    #
