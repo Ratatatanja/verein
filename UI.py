@@ -272,6 +272,7 @@ class ApplicationUI:
         try:
             # saves as variable the department that was chosen
             self.department = self.department_combobox.get()
+            print(self.department)
             if self.department == "":
                 messagebox.showerror("Info", "Bitte wählen sie erst eine "
                                  "Abteilung aus.")
